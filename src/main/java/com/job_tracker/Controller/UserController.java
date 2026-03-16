@@ -1,9 +1,6 @@
 package com.job_tracker.Controller;
 
-import com.job_tracker.Dto.LoginResponseDto;
-import com.job_tracker.Dto.RequestLoginDto;
-import com.job_tracker.Dto.UserCreateRequestDto;
-import com.job_tracker.Dto.UserResponseDto;
+import com.job_tracker.Dto.*;
 import com.job_tracker.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +10,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
     public UserController(UserService service) {
-        this.service = service;
+        this.userService = service;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDto> userToCreate(
             @RequestBody @Valid UserCreateRequestDto user
     )
     {
-        UserResponseDto created = service.userToCreate(user);
+        UserResponseDto created = userService.userToCreate(user);
         return ResponseEntity.ok(created);
     }
 
@@ -33,25 +30,16 @@ public class UserController {
             @RequestBody @Valid RequestLoginDto user
     )
     {
-        LoginResponseDto login = service.userToLogin(user);
+        LoginResponseDto login = userService.userToLogin(user);
         return ResponseEntity.ok(login);
     }
 
-    @GetMapping("/by-email")
-    public ResponseEntity<UserResponseDto> getUserByEmail(
-            @RequestParam String email
+    @PutMapping("/me/update-info")
+    public ResponseEntity<UserResponseDto> userToUpdate(
+            @RequestBody UserUpdateDto user
     )
     {
-        UserResponseDto userByEmail = service.getUserByEmail(email);
-        return ResponseEntity.ok(userByEmail);
-    }
-
-    @PostMapping("/admin")
-    public ResponseEntity<UserResponseDto> createAdmin(
-            @RequestBody @Valid UserCreateRequestDto user
-    )
-    {
-        UserResponseDto created = service.createAdmin(user);
-        return ResponseEntity.ok(created);
+        UserResponseDto userResponseDto = userService.userToUpdate(user);
+        return ResponseEntity.ok(userResponseDto);
     }
 }
