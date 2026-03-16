@@ -44,6 +44,4 @@ public class UserEntity {
     @UpdateTimestamp
     private OffsetDateTime updatedAt;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive;
 }

@@ -31,6 +31,7 @@ public class ApplicationEntity {
     private String position;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ApplicationStatus applicationStatus = ApplicationStatus.DRAFT;
 
     @Column(name = "created_at", nullable = false)

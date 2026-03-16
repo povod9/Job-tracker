@@ -5,8 +5,7 @@ create table if not exists users(
     password_hash varchar(255) not null,
     role varchar(30) not null default 'USER',
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now(),
-    is_active boolean not null default true
+    updated_at timestamptz not null default now()
 );
 
 create table if not exists applications(
@@ -30,8 +29,8 @@ create table if not exists activity_events(
 
 create table if not exists reminders(
     id bigserial primary key,
-    user_id bigint references users(id),
-    application_id bigint references applications(id) on delete cascade ,
+    user_id bigint not null references users(id),
+    application_id bigint not null references applications(id) on delete cascade ,
     due_at timestamptz not null,
     status varchar(30) not null,
     message text null,

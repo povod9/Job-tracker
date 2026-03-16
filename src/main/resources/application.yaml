@@ -5,10 +5,9 @@ spring:
   application:
     name: job-tracker
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql//localhost:5432/jobtracker}
-    name: ${SPRING_DATASOURCE_NAME:postgres}
-    password: ${POSTGRES_PASSWORD}
-
+    url: jdbc:postgresql://localhost:5432/jobtracker
+    username: postgres
+    password: root
   jpa:
     hibernate:
       ddl-auto: validate
@@ -19,5 +18,5 @@ spring:
 
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:default-secret-key-sadfg-sdgsdkvlm-sedfklksng-sdlkfglsrkgjn-sdlkfgsergkn}
+  expiration: ${JWT_EXPIRATION:86400000}

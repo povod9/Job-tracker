@@ -27,6 +27,7 @@ public class ActivityEventEntity {
     private ApplicationEntity application;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ActivityEventType type;
 
     @Column(name = "created_at", nullable = false)

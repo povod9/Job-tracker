@@ -19,8 +19,11 @@ import java.time.OffsetDateTime;
 public class TelegramSettingEntity {
 
     @Id
+    @Column(name = "user_id")
+    private Long userId;
+
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false,  updatable = false, insertable = false)
     private UserEntity user;
 
     @Column(name = "telegram_chat_id", nullable = false)
