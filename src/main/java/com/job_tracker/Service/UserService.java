@@ -12,6 +12,7 @@ import com.job_tracker.Repository.*;
 import com.job_tracker.Security.JwtCore;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,7 @@ public class UserService {
         return mapper.userToDto(userEntity);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDto getUserByEmail(
             String email
     )
@@ -81,6 +83,7 @@ public class UserService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDto createAdmin(UserCreateRequestDto user) {
 
         UserEntity userEntity = new UserEntity(

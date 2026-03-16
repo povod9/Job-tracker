@@ -19,7 +19,11 @@ public class WebSecurityConfig {
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/create").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/user/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/user/by-email").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }
