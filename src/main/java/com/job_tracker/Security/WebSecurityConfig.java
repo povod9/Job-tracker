@@ -24,6 +24,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/admin/register").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/find/by-email").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/delete/by-email").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/user/me/update-info").hasRole("USER")
                         .anyRequest().authenticated()
                 );
         return http.build();

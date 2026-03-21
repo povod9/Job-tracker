@@ -9,9 +9,13 @@ import com.job_tracker.Repository.*;
 import com.job_tracker.Security.JwtCore;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.time.OffsetDateTime;
 
 @Service
@@ -72,12 +76,43 @@ public class UserService {
     }
 
 
+    @PreAuthorize("hasRole('USER')")
     public UserResponseDto userToUpdate(
             UserUpdateDto user
     )
     {
-        if(userRepository.existsByEmail(user.email())){
-            throw new IllegalArgumentException("Email already exists");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PrincipalDto principal = (PrincipalDto) authentication.getPrincipal();
+
+        UserEntity userEntity = userRepository.findById(principal.id())
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
+
+        if(user.name() != null){
+            userEntity.setName(user.name());
         }
+
+        if(user.email() != null){
+            if(user.email().equals(userEntity.getEmail())){
+                throw new IllegalArgumentException("Email cannot be the same");
+            }
+
+            if(userRepository.existsByEmail(user.email())){
+                throw new IllegalArgumentException("Email already exists");
+            }
+
+            userEntity.setEmail(user.email());
+        }
+
+        if (user.passwordHash() != null) {
+            if(passwordEncoder.matches(user.passwordHash(), userEntity.getPasswordHash())){
+                throw new IllegalArgumentException("Password cannot be the same");
+            }
+            userEntity.setPasswordHash(passwordEncoder.encode(user.passwordHash()));
+        }
+
+        userEntity.setUpdatedAt(OffsetDateTime.now());
+        userEntity = userRepository.save(userEntity);
+        return mapper.userToDto(userEntity);
     }
 }
