@@ -3,6 +3,7 @@ package com.job_tracker.Controller;
 import com.job_tracker.Dto.*;
 import com.job_tracker.Service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,9 @@ public class UserController {
     )
     {
         UserResponseDto created = userService.userToCreate(user);
-        return ResponseEntity.ok(created);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(created);
     }
 
     @PostMapping("/login")
@@ -41,5 +44,16 @@ public class UserController {
     {
         UserResponseDto userResponseDto = userService.userToUpdate(user);
         return ResponseEntity.ok(userResponseDto);
+    }
+
+    @PostMapping("/create/application")
+    public ResponseEntity<ApplicationResponseDto> createApplication(
+            @RequestBody ApplicationCreateRequestDto application
+    )
+    {
+        ApplicationResponseDto applicationResponseDto = userService.createApplication(application);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(applicationResponseDto);
     }
 }

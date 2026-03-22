@@ -43,5 +43,6 @@ public class ApplicationEntity {
     private OffsetDateTime updatedAt;
 
     @Column
+    @Version
     private Long version;
 }

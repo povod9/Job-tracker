@@ -5,7 +5,7 @@ spring:
   application:
     name: job-tracker
   datasource:
-    url: jdbc:postgresql://localhost:5432/jobtracker
+    url: ${SPRING_DATASOURCE_URL}
     username: postgres
     password: ${POSTGRES_PASSWORD}
   jpa:
@@ -15,6 +15,7 @@ spring:
 
   flyway:
     enabled: true
+    baseline-on-migrate: true
 
 
 jwt:

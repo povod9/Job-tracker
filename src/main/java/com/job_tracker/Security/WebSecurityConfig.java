@@ -3,12 +3,14 @@ package com.job_tracker.Security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Bean
@@ -21,10 +23,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .requestMatchers(HttpMethod.POST, "/user/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/user/me/**").hasAnyRole("USER", "ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/admin/register").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/admin/find/by-email").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/admin/delete/by-email").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/user/me/update-info").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/admin/find/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/admin/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
         return http.build();

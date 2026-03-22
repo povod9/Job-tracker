@@ -1,7 +1,7 @@
 services:
 
   job-tracker-db:
-    image: postgres:latest
+    image: postgres:16-alpine
     restart: always
     ports:
       - "5432:5432"
@@ -13,3 +13,24 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  job-service:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - job-tracker-db
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://job-tracker-db:5432/jobtracker
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+
+volumes:
+  postgres_data:

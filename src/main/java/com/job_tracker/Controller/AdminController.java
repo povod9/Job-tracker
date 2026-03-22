@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -24,6 +26,12 @@ public class AdminController {
     {
         UserResponseDto created = adminService.createAdmin(user);
         return ResponseEntity.ok(created);
+    }
+
+    @GetMapping("/find/all-user")
+    public ResponseEntity<List<UserResponseDto>> getAllUser()
+    {
+        return ResponseEntity.ok(adminService.getAllUser());
     }
 
     @GetMapping("/find/by-email")

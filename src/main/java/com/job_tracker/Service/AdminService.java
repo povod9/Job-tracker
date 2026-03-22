@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Service
 public class AdminService {
@@ -33,7 +34,7 @@ public class AdminService {
     ) {
 
         if(userRepository.existsByEmail(user.email())){
-            throw new IllegalArgumentException("Email already exists" + user.email());
+            throw new IllegalArgumentException("Email already exists " + user.email());
         }
 
         UserEntity userEntity = new UserEntity(
@@ -48,6 +49,15 @@ public class AdminService {
         userEntity = userRepository.save(userEntity);
 
         return mapper.userToDto(userEntity);
+    }
+
+    public List<UserResponseDto> getAllUser() {
+
+        List<UserEntity> userEntity = userRepository.findAll();
+
+        return userEntity.stream()
+                .map(mapper::userToDto)
+                .toList();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -72,4 +82,6 @@ public class AdminService {
         userRepository.delete(userEntity);
         return mapper.userToDto(userEntity);
     }
+
+
 }

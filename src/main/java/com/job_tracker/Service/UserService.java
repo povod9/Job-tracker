@@ -2,32 +2,35 @@ package com.job_tracker.Service;
 
 import com.job_tracker.CreateException.InvalidCredentialsException;
 import com.job_tracker.Dto.*;
+import com.job_tracker.Entity.ApplicationEntity;
 import com.job_tracker.Entity.UserEntity;
+import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Enums.Role;
 import com.job_tracker.Mapper.UserMapper;
 import com.job_tracker.Repository.*;
 import com.job_tracker.Security.JwtCore;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.time.OffsetDateTime;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtCore  jwtCore;
 
-    public UserService(UserRepository userRepository, UserMapper mapper, PasswordEncoder passwordEncoder, JwtCore jwtCore) {
+    public UserService(UserRepository userRepository, ApplicationRepository applicationRepository, UserMapper mapper, PasswordEncoder passwordEncoder, JwtCore jwtCore) {
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtCore = jwtCore;
@@ -76,7 +79,7 @@ public class UserService {
     }
 
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public UserResponseDto userToUpdate(
             UserUpdateDto user
     )
@@ -115,4 +118,33 @@ public class UserService {
         userEntity = userRepository.save(userEntity);
         return mapper.userToDto(userEntity);
     }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ApplicationResponseDto createApplication(
+            ApplicationCreateRequestDto application
+    )
+    {
+     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+     PrincipalDto principal = (PrincipalDto) authentication.getPrincipal();
+
+     UserEntity userEntity = userRepository.findById(principal.id())
+             .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
+
+
+        ApplicationEntity applicationEntity = new ApplicationEntity(
+                null,
+                userEntity,
+                application.company(),
+                application.position(),
+                ApplicationStatus.DRAFT,
+                null,
+                null,
+                null
+        );
+
+        ApplicationEntity saved = applicationRepository.save(applicationEntity);
+        return mapper.applicationToDto(saved);
+    }
 }
+
