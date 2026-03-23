@@ -7,10 +7,15 @@ import com.job_tracker.Entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     UserResponseDto userToDto(UserEntity userEntity);
 
     @Mapping(source = "user", target = "userDto")
     ApplicationResponseDto applicationToDto(ApplicationEntity applicationEntity);
+
+    @Mapping(source = "user", target = "userDto")
+    List<ApplicationResponseDto> listApplicationToDto(List<ApplicationEntity> applicationEntities);
 }

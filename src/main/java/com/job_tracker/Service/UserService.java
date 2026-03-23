@@ -1,9 +1,12 @@
 package com.job_tracker.Service;
 
+import com.job_tracker.CreateException.AccessDeniedException;
 import com.job_tracker.CreateException.InvalidCredentialsException;
 import com.job_tracker.Dto.*;
+import com.job_tracker.Entity.ActivityEventEntity;
 import com.job_tracker.Entity.ApplicationEntity;
 import com.job_tracker.Entity.UserEntity;
+import com.job_tracker.Enums.ActivityEventType;
 import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Enums.Role;
 import com.job_tracker.Mapper.UserMapper;
@@ -18,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -27,13 +31,15 @@ public class UserService {
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtCore  jwtCore;
+    private final ActivityRepository activityRepository;
 
-    public UserService(UserRepository userRepository, ApplicationRepository applicationRepository, UserMapper mapper, PasswordEncoder passwordEncoder, JwtCore jwtCore) {
+    public UserService(UserRepository userRepository, ApplicationRepository applicationRepository, UserMapper mapper, PasswordEncoder passwordEncoder, JwtCore jwtCore, ActivityRepository activityRepository) {
         this.userRepository = userRepository;
         this.applicationRepository = applicationRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtCore = jwtCore;
+        this.activityRepository = activityRepository;
     }
 
 
@@ -91,6 +97,10 @@ public class UserService {
         UserEntity userEntity = userRepository.findById(principal.id())
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
 
+        if(!userEntity.getId().equals(principal.id())){
+            throw new AccessDeniedException("Access denied");
+        }
+
         if(user.name() != null){
             userEntity.setName(user.name());
         }
@@ -131,7 +141,6 @@ public class UserService {
      UserEntity userEntity = userRepository.findById(principal.id())
              .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
 
-
         ApplicationEntity applicationEntity = new ApplicationEntity(
                 null,
                 userEntity,
@@ -143,8 +152,64 @@ public class UserService {
                 null
         );
 
+        if(application.company().equals(applicationEntity.getCompany()) && application.position().equals(applicationEntity.getPosition())){
+            throw new IllegalArgumentException("This application already exists");
+        }
+
         ApplicationEntity saved = applicationRepository.save(applicationEntity);
         return mapper.applicationToDto(saved);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public List<ApplicationResponseDto> getMyApplication() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PrincipalDto principal = (PrincipalDto) authentication.getPrincipal();
+
+        UserEntity userEntity = userRepository.findById(principal.id())
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
+
+        List<ApplicationEntity> userApplicationEntity = applicationRepository.findByUserIdAndApplicationStatusNot(
+                principal.id(),
+                ApplicationStatus.DELETED
+        );
+        return mapper.listApplicationToDto(userApplicationEntity);
+    }
+
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ApplicationResponseDto deleteMyApplicationById(
+            Long id
+    )
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PrincipalDto principal = (PrincipalDto) authentication.getPrincipal();
+
+        ApplicationEntity applicationEntity = applicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find application by id= " + id));
+
+        UserEntity userEntity = userRepository.findById(principal.id())
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + id));
+
+        if(!applicationEntity.getUser().getId().equals(principal.id())){
+            throw new AccessDeniedException("You are not allowed to delete this application");
+        }
+
+        applicationEntity.setApplicationStatus(ApplicationStatus.DELETED);
+
+        ActivityEventEntity activityEventEntity = new ActivityEventEntity(
+                null,
+                applicationEntity,
+                ActivityEventType.STATUS_CHANGED,
+                null,
+                userEntity
+        );
+
+        applicationRepository.save(applicationEntity);
+        activityRepository.save(activityEventEntity);
+
+        return mapper.applicationToDto(applicationEntity);
     }
 }
 

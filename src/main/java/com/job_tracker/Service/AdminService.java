@@ -1,10 +1,14 @@
 package com.job_tracker.Service;
 
+import com.job_tracker.Dto.ApplicationResponseDto;
 import com.job_tracker.Dto.UserCreateRequestDto;
 import com.job_tracker.Dto.UserResponseDto;
+import com.job_tracker.Entity.ApplicationEntity;
 import com.job_tracker.Entity.UserEntity;
+import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Enums.Role;
 import com.job_tracker.Mapper.UserMapper;
+import com.job_tracker.Repository.ApplicationRepository;
 import com.job_tracker.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,11 +22,13 @@ import java.util.List;
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminService(UserRepository userRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+    public AdminService(UserRepository userRepository, ApplicationRepository applicationRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
     }
@@ -84,4 +90,11 @@ public class AdminService {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<ApplicationResponseDto> getDeletedApplication()
+    {
+        List<ApplicationEntity> applicationEntity = applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
+
+        return mapper.listApplicationToDto(applicationEntity);
+    }
 }

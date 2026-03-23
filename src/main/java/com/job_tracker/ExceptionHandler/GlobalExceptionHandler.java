@@ -1,5 +1,6 @@
 package com.job_tracker.ExceptionHandler;
 
+import com.job_tracker.CreateException.AccessDeniedException;
 import com.job_tracker.CreateException.InvalidCredentialsException;
 import com.job_tracker.Dto.ExceptionDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -56,6 +57,21 @@ public class GlobalExceptionHandler {
         );
         return  ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(exceptionDto);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionDto> handleAccessDeniedException(
+            AccessDeniedException e
+    )
+    {
+        ExceptionDto exceptionDto = new ExceptionDto(
+                "Access Denied",
+                e.getMessage(),
+                OffsetDateTime.now()
+        );
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(exceptionDto);
     }
 }
