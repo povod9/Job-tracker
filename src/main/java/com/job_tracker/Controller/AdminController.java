@@ -1,5 +1,6 @@
 package com.job_tracker.Controller;
 
+import com.job_tracker.Dto.ActivityEventResponseDto;
 import com.job_tracker.Dto.ApplicationResponseDto;
 import com.job_tracker.Dto.UserCreateRequestDto;
 import com.job_tracker.Dto.UserResponseDto;
@@ -67,5 +68,10 @@ public class AdminController {
     }
 
     @GetMapping("/find/all-activity-event")
-    public ResponseEntity<>
+    public ResponseEntity<List<ActivityEventResponseDto>> getAllActivityEvent()
+    {
+        List<ActivityEventResponseDto> activityEventResponseDto = adminService.getAllActivityEvent();
+        return ResponseEntity
+                .ok(activityEventResponseDto);
+    }
 }

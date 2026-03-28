@@ -29,6 +29,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/admin/find/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/admin/delete/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/deleted/application").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/admin/find/all-activity-event").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
         return http.build();

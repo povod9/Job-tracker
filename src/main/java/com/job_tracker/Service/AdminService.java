@@ -1,13 +1,16 @@
 package com.job_tracker.Service;
 
+import com.job_tracker.Dto.ActivityEventResponseDto;
 import com.job_tracker.Dto.ApplicationResponseDto;
 import com.job_tracker.Dto.UserCreateRequestDto;
 import com.job_tracker.Dto.UserResponseDto;
+import com.job_tracker.Entity.ActivityEventEntity;
 import com.job_tracker.Entity.ApplicationEntity;
 import com.job_tracker.Entity.UserEntity;
 import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Enums.Role;
 import com.job_tracker.Mapper.UserMapper;
+import com.job_tracker.Repository.ActivityRepository;
 import com.job_tracker.Repository.ApplicationRepository;
 import com.job_tracker.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,12 +27,14 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final ApplicationRepository applicationRepository;
+    private final ActivityRepository  activityRepository;
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminService(UserRepository userRepository, ApplicationRepository applicationRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+    public AdminService(UserRepository userRepository, ApplicationRepository applicationRepository, ActivityRepository activityRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.applicationRepository = applicationRepository;
+        this.activityRepository = activityRepository;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
     }
@@ -99,5 +104,13 @@ public class AdminService {
         List<ApplicationEntity> applicationEntity = applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
 
         return mapper.listApplicationToDto(applicationEntity);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<ActivityEventResponseDto> getAllActivityEvent()
+    {
+        List<ActivityEventEntity> activityEventEntities = activityRepository.findAll();
+
+        return mapper.activityEventEntityToActivityResponseDto(activityEventEntities);
     }
 }
