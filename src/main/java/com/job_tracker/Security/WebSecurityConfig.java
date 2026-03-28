@@ -23,10 +23,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                         .requestMatchers(HttpMethod.POST, "/user/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/user/me/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/user/me/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/user/create/application").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/user/me/application").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/user/me/delete-my-application/{id}").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/admin/register").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/find/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/admin/delete/**").hasRole("ADMIN")

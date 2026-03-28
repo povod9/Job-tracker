@@ -1,6 +1,7 @@
 package com.job_tracker.Service;
 
 import com.job_tracker.CreateException.AccessDeniedException;
+import com.job_tracker.CreateException.InvalidApplicationStatusTransition;
 import com.job_tracker.CreateException.InvalidCredentialsException;
 import com.job_tracker.Dto.*;
 import com.job_tracker.Entity.ActivityEventEntity;
@@ -43,6 +44,7 @@ public class UserService {
     }
 
 
+    @Transactional
     public UserResponseDto userToCreate(
             UserCreateRequestDto user
     )
@@ -85,6 +87,7 @@ public class UserService {
     }
 
 
+    @Transactional
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public UserResponseDto userToUpdate(
             UserUpdateDto user
@@ -96,10 +99,6 @@ public class UserService {
 
         UserEntity userEntity = userRepository.findById(principal.id())
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
-
-        if(!userEntity.getId().equals(principal.id())){
-            throw new AccessDeniedException("Access denied");
-        }
 
         if(user.name() != null){
             userEntity.setName(user.name());
@@ -141,7 +140,12 @@ public class UserService {
      UserEntity userEntity = userRepository.findById(principal.id())
              .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
 
-        ApplicationEntity applicationEntity = new ApplicationEntity(
+
+        if(applicationRepository.existsByUserIdAndCompanyAndPosition(principal.id(), application.company(), application.position())){
+            throw new IllegalArgumentException("Application already exists");
+        }
+
+        ApplicationEntity createdApplicationEntity = new ApplicationEntity(
                 null,
                 userEntity,
                 application.company(),
@@ -151,12 +155,7 @@ public class UserService {
                 null,
                 null
         );
-
-        if(application.company().equals(applicationEntity.getCompany()) && application.position().equals(applicationEntity.getPosition())){
-            throw new IllegalArgumentException("This application already exists");
-        }
-
-        ApplicationEntity saved = applicationRepository.save(applicationEntity);
+        ApplicationEntity saved = applicationRepository.save(createdApplicationEntity);
         return mapper.applicationToDto(saved);
     }
 
@@ -206,6 +205,45 @@ public class UserService {
                 userEntity
         );
 
+        applicationRepository.save(applicationEntity);
+        activityRepository.save(activityEventEntity);
+
+        return mapper.applicationToDto(applicationEntity);
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ApplicationResponseDto updateMyApplicationStatusById(
+            Long id,
+            ApplicationStatus applicationStatus
+    )
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PrincipalDto principal = (PrincipalDto) authentication.getPrincipal();
+
+        UserEntity userEntity = userRepository.findById(principal.id())
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + id));
+
+        ApplicationEntity applicationEntity = applicationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find application by id= " + id));
+
+        if(!applicationEntity.getApplicationStatus().canTransitionTo(applicationStatus)){
+            throw new InvalidApplicationStatusTransition("Application status can't be transitioned to " + applicationStatus);
+        }
+
+        if(!applicationEntity.getUser().getId().equals(principal.id())){
+            throw new AccessDeniedException("You are not allowed to update this application");
+        }
+
+        ActivityEventEntity activityEventEntity = new ActivityEventEntity(
+                null,
+                applicationEntity,
+                ActivityEventType.STATUS_CHANGED,
+                null,
+                userEntity
+        );
+
+        applicationEntity.setApplicationStatus(applicationStatus);
         applicationRepository.save(applicationEntity);
         activityRepository.save(activityEventEntity);
 

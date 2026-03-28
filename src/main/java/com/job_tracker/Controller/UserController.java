@@ -1,6 +1,7 @@
 package com.job_tracker.Controller;
 
 import com.job_tracker.Dto.*;
+import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -79,6 +80,15 @@ public class UserController {
                 .ok(deletedApplicationResponseDto);
     }
 
-    //@PutMapping("/me/update-application-status")
+    @PutMapping("/me/update-application-status/{id}")
+    public ResponseEntity<ApplicationResponseDto> updateMyApplicationStatusById(
+            @PathVariable("id") Long id,
+            @RequestParam ApplicationStatus applicationStatus
+    )
+    {
+        ApplicationResponseDto applicationResponseDto = userService.updateMyApplicationStatusById(id, applicationStatus);
+        return  ResponseEntity
+                .ok(applicationResponseDto);
+    }
 
 }

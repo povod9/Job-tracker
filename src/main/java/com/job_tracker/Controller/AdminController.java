@@ -65,4 +65,7 @@ public class AdminController {
         return ResponseEntity
                 .ok(applicationResponseDtoList);
     }
+
+    @GetMapping("/find/all-activity-event")
+    public ResponseEntity<>
 }

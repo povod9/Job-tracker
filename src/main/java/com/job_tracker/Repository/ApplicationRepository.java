@@ -12,4 +12,6 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
 
     List<ApplicationEntity> findByUserIdAndApplicationStatusNot(Long userId, ApplicationStatus applicationStatus);
     List<ApplicationEntity> findByApplicationStatus(ApplicationStatus applicationStatus);
+
+    boolean existsByUserIdAndCompanyAndPosition(Long userId, String company, String position);
 }

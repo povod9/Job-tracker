@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -34,6 +35,7 @@ public class AdminService {
     }
 
 
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDto createAdmin(
             UserCreateRequestDto user
@@ -77,6 +79,7 @@ public class AdminService {
         return mapper.userToDto(userEntity);
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDto deleteUser(
             String email

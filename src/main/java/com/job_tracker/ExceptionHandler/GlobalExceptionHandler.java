@@ -1,6 +1,7 @@
 package com.job_tracker.ExceptionHandler;
 
 import com.job_tracker.CreateException.AccessDeniedException;
+import com.job_tracker.CreateException.InvalidApplicationStatusTransition;
 import com.job_tracker.CreateException.InvalidCredentialsException;
 import com.job_tracker.Dto.ExceptionDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -72,6 +73,21 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(exceptionDto);
+    }
+
+    @ExceptionHandler(InvalidApplicationStatusTransition.class)
+    public ResponseEntity<ExceptionDto> handleInvalidApplicationStatusTransition(
+            InvalidApplicationStatusTransition e
+    )
+    {
+        ExceptionDto exceptionDto = new ExceptionDto(
+                "Invalid Application Status",
+                e.getMessage(),
+                OffsetDateTime.now()
+        );
+        return  ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(exceptionDto);
     }
 }
