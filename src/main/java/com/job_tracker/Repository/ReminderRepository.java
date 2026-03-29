@@ -13,6 +13,6 @@ import java.util.List;
 public interface ReminderRepository extends JpaRepository<ReminderEntity, Long> {
 
     List<ReminderEntity> findByStatus(ReminderStatus status);
-
+    List<ReminderEntity> findAllByUserId(Long userId);
     List<ReminderEntity> findByDueAtBefore(OffsetDateTime dueAtBefore);
 }

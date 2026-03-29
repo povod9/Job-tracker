@@ -1,14 +1,12 @@
 package com.job_tracker.Controller;
 
 import com.job_tracker.Dto.*;
-import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -41,7 +39,7 @@ public class UserController {
                 .ok(login);
     }
 
-    @PutMapping("/me/update-info")
+    @PutMapping("/me/update/information")
     public ResponseEntity<UserResponseDto> userToUpdate(
             @RequestBody UserUpdateDto user
     )
@@ -51,44 +49,6 @@ public class UserController {
                 .ok(userResponseDto);
     }
 
-    @PostMapping("/create/application")
-    public ResponseEntity<ApplicationResponseDto> createApplication(
-            @RequestBody ApplicationCreateRequestDto application
-    )
-    {
-        ApplicationResponseDto applicationResponseDto = userService.createApplication(application);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(applicationResponseDto);
-    }
 
-    @GetMapping("/me/application")
-    public ResponseEntity<List<ApplicationResponseDto>> getMyApplication()
-    {
-        List<ApplicationResponseDto> applicationResponseDto = userService.getMyApplication();
-        return ResponseEntity
-                .ok(applicationResponseDto);
-    }
-
-    @DeleteMapping("/me/delete-my-application/{id}")
-    public ResponseEntity<ApplicationResponseDto> deleteMyApplicationById(
-            @PathVariable("id") Long id
-    )
-    {
-        ApplicationResponseDto deletedApplicationResponseDto = userService.deleteMyApplicationById(id);
-        return ResponseEntity
-                .ok(deletedApplicationResponseDto);
-    }
-
-    @PutMapping("/me/update-application-status/{id}")
-    public ResponseEntity<ApplicationResponseDto> updateMyApplicationStatusById(
-            @PathVariable("id") Long id,
-            @RequestParam ApplicationStatus applicationStatus
-    )
-    {
-        ApplicationResponseDto applicationResponseDto = userService.updateMyApplicationStatusById(id, applicationStatus);
-        return  ResponseEntity
-                .ok(applicationResponseDto);
-    }
 
 }

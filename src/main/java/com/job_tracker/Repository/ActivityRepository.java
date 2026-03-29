@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ActivityRepository extends JpaRepository<ActivityEventEntity, Long> {
+
     List<ActivityEventEntity> findByApplicationId(Long applicationId);
 }

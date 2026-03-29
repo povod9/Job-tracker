@@ -9,6 +9,8 @@ import com.job_tracker.Entity.ApplicationEntity;
 import com.job_tracker.Entity.UserEntity;
 import com.job_tracker.Enums.ApplicationStatus;
 import com.job_tracker.Enums.Role;
+import com.job_tracker.Mapper.ActivityMapper;
+import com.job_tracker.Mapper.ApplicationMapper;
 import com.job_tracker.Mapper.UserMapper;
 import com.job_tracker.Repository.ActivityRepository;
 import com.job_tracker.Repository.ApplicationRepository;
@@ -28,14 +30,18 @@ public class AdminService {
     private final UserRepository userRepository;
     private final ApplicationRepository applicationRepository;
     private final ActivityRepository  activityRepository;
-    private final UserMapper mapper;
+    private final ActivityMapper  activityMapper;
+    private final ApplicationMapper applicationMapper;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminService(UserRepository userRepository, ApplicationRepository applicationRepository, ActivityRepository activityRepository, UserMapper mapper, PasswordEncoder passwordEncoder) {
+    public AdminService(UserRepository userRepository, ApplicationRepository applicationRepository, ActivityRepository activityRepository, ActivityMapper activityMapper, ApplicationMapper applicationMapper, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.applicationRepository = applicationRepository;
         this.activityRepository = activityRepository;
-        this.mapper = mapper;
+        this.activityMapper = activityMapper;
+        this.applicationMapper = applicationMapper;
+        this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -61,7 +67,7 @@ public class AdminService {
         );
         userEntity = userRepository.save(userEntity);
 
-        return mapper.userToDto(userEntity);
+        return userMapper.userToDto(userEntity);
     }
 
     public List<UserResponseDto> getAllUser() {
@@ -69,7 +75,7 @@ public class AdminService {
         List<UserEntity> userEntity = userRepository.findAll();
 
         return userEntity.stream()
-                .map(mapper::userToDto)
+                .map(userMapper::userToDto)
                 .toList();
     }
 
@@ -81,7 +87,7 @@ public class AdminService {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
 
-        return mapper.userToDto(userEntity);
+        return userMapper.userToDto(userEntity);
     }
 
     @Transactional
@@ -94,7 +100,7 @@ public class AdminService {
                 .orElseThrow(()  -> new EntityNotFoundException("Cannot find user by email " + email));
 
         userRepository.delete(userEntity);
-        return mapper.userToDto(userEntity);
+        return userMapper.userToDto(userEntity);
     }
 
 
@@ -103,7 +109,7 @@ public class AdminService {
     {
         List<ApplicationEntity> applicationEntity = applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
 
-        return mapper.listApplicationToDto(applicationEntity);
+        return applicationMapper.listApplicationToDto(applicationEntity);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -111,6 +117,6 @@ public class AdminService {
     {
         List<ActivityEventEntity> activityEventEntities = activityRepository.findAll();
 
-        return mapper.activityEventEntityToActivityResponseDto(activityEventEntities);
+        return activityMapper.activityEventEntityToActivityResponseDto(activityEventEntities);
     }
 }

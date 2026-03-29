@@ -24,12 +24,12 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         .requestMatchers("/user/me/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/user/create/application").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/admin/register").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/find/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/admin/delete/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/admin/deleted/application").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/admin/find/all-activity-event").hasRole("ADMIN")
+                        .requestMatchers("/application/me/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/reminder/me/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 );
         return http.build();
