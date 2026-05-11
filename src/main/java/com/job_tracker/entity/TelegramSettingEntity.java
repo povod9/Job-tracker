@@ -1,14 +1,13 @@
 package com.job_tracker.entity;
 
 import jakarta.persistence.*;
+import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "telegram_settings")
@@ -18,25 +17,25 @@ import java.time.OffsetDateTime;
 @Setter
 public class TelegramSettingEntity {
 
-    @Id
-    @Column(name = "user_id")
-    private Long userId;
+  @Id
+  @Column(name = "user_id")
+  private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false,  updatable = false, insertable = false)
-    private UserEntity user;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false, updatable = false, insertable = false)
+  private UserEntity user;
 
-    @Column(name = "telegram_chat_id", nullable = false)
-    private Long telegramChatId;
+  @Column(name = "telegram_chat_id", nullable = false)
+  private Long telegramChatId;
 
-    @Column(name = "is_enabled", nullable = false)
-    private Boolean isEnabled;
+  @Column(name = "is_enabled", nullable = false)
+  private Boolean isEnabled;
 
-    @Column(name = "created_at", nullable = false)
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
+  @Column(name = "created_at", nullable = false)
+  @CreationTimestamp
+  private OffsetDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
+  @Column(name = "updated_at", nullable = false)
+  @UpdateTimestamp
+  private OffsetDateTime updatedAt;
 }

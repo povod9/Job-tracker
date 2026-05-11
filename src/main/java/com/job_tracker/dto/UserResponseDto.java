@@ -5,12 +5,4 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record UserResponseDto(
-        @NotBlank
-        String name,
-        @Email
-        @NotBlank
-        String email,
-        @NotBlank
-        Role role
-) {
-}
+    @NotBlank String name, @Email @NotBlank String email, @NotBlank Role role) {}
