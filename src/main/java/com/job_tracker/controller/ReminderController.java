@@ -19,7 +19,7 @@ public class ReminderController {
     this.reminderService = reminderService;
   }
 
-  @PostMapping("/me/create//{id}")
+  @PostMapping("/me/create/{id}")
   public ResponseEntity<ReminderResponseDto> createReminder(
       @PathVariable("id") Long applicationId,
       @RequestBody @Valid ReminderCreateRequestDto reminder) {

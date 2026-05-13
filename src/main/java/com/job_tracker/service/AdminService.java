@@ -1,6 +1,7 @@
 package com.job_tracker.service;
 
 // import com.job_tracker.annotation.TrackExecutionTime;
+import com.job_tracker.annotation.TrackExecutionTime;
 import com.job_tracker.dto.ActivityEventResponseDto;
 import com.job_tracker.dto.ApplicationResponseDto;
 import com.job_tracker.dto.UserCreateRequestDto;
@@ -19,7 +20,10 @@ import com.job_tracker.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +41,7 @@ public class AdminService {
   private final PasswordEncoder passwordEncoder;
 
   @Transactional
-  //  @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
   public UserResponseDto createAdmin(UserCreateRequestDto user) {
 
     if (userRepository.existsByEmail(user.email())) {
@@ -66,7 +70,7 @@ public class AdminService {
   }
 
   //  @TrackExecutionTime(unit = TimeUnit.SECONDS, debug = false)
-  //  @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
   public UserResponseDto getUserByEmail(String email) {
     UserEntity userEntity =
         userRepository
@@ -77,7 +81,7 @@ public class AdminService {
   }
 
   @Transactional
-  //  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   public UserResponseDto deleteUser(String email) {
     UserEntity userEntity =
         userRepository
@@ -88,7 +92,8 @@ public class AdminService {
     return userMapper.userToDto(userEntity);
   }
 
-  //  @PreAuthorize("hasRole('ADMIN')")
+  @TrackExecutionTime(unit = TimeUnit.MILLISECONDS, debug = false)
+  @PreAuthorize("hasRole('ADMIN')")
   public List<ApplicationResponseDto> getDeletedApplication() {
     List<ApplicationEntity> applicationEntity =
         applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
@@ -96,7 +101,7 @@ public class AdminService {
     return applicationMapper.listApplicationToDto(applicationEntity);
   }
 
-  //  @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
   public List<ActivityEventResponseDto> getAllActivityEvent() {
     List<ActivityEventEntity> activityEventEntities = activityRepository.findAll();
 

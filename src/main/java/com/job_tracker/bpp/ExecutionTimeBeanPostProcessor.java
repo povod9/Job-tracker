@@ -21,6 +21,7 @@ public class ExecutionTimeBeanPostProcessor implements BeanPostProcessor {
         for (int i = 0; i < className.length; i++) {
             if(className[i].isAnnotationPresent(TrackExecutionTime.class)){
                 hasAnnotation = true;
+                break;
             }
         }
         if(hasAnnotation){

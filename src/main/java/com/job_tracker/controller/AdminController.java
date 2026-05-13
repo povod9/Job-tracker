@@ -34,13 +34,13 @@ public class AdminController {
   }
 
   @GetMapping("/users/email/{email}")
-  public ResponseEntity<UserResponseDto> getUserByEmail(@PathVariable("{email}") String email) {
+  public ResponseEntity<UserResponseDto> getUserByEmail(@PathVariable("email") String email) {
     UserResponseDto userByEmail = adminService.getUserByEmail(email);
     return ResponseEntity.ok(userByEmail);
   }
 
   @DeleteMapping("/users/delete/email/{email}")
-  public ResponseEntity<UserResponseDto> deleteUserByEmail(@PathVariable("{email}") String email) {
+  public ResponseEntity<UserResponseDto> deleteUserByEmail(@PathVariable("email") String email) {
     return ResponseEntity.ok(adminService.deleteUser(email));
   }
 

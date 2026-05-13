@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TrackExecutionTime {
-    String name();
     TimeUnit unit();
     boolean debug() default true;
 
