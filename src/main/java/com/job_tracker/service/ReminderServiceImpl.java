@@ -1,0 +1,80 @@
+package com.job_tracker.service;
+
+import static com.job_tracker.helper_method.SecurityUtil.getCurrentPrincipalOrThrow;
+
+import com.job_tracker.create_exception.AccessDeniedException;
+import com.job_tracker.dto.PrincipalDto;
+import com.job_tracker.dto.ReminderCreateRequestDto;
+import com.job_tracker.dto.ReminderResponseDto;
+import com.job_tracker.entity.ApplicationEntity;
+import com.job_tracker.entity.ReminderEntity;
+import com.job_tracker.entity.UserEntity;
+import com.job_tracker.enums.ReminderStatus;
+import com.job_tracker.mapper.ReminderMapper;
+import com.job_tracker.repository.ApplicationRepository;
+import com.job_tracker.repository.ReminderRepository;
+import com.job_tracker.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class ReminderServiceImpl implements ReminderService {
+
+  private final ReminderRepository reminderRepository;
+  private final UserRepository userRepository;
+  private final ApplicationRepository applicationRepository;
+  private final ReminderMapper reminderMapper;
+
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  public List<ReminderResponseDto> getMyReminder() {
+
+    PrincipalDto principal = getCurrentPrincipalOrThrow();
+
+    List<ReminderEntity> reminderEntities = reminderRepository.findAllByUserId(principal.id());
+
+    return reminderMapper.listRemindersToDto(reminderEntities);
+  }
+
+  @Transactional
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  public ReminderResponseDto createReminder(Long applicationId, ReminderCreateRequestDto reminder) {
+
+    PrincipalDto principal = getCurrentPrincipalOrThrow();
+
+    UserEntity userEntity =
+        userRepository
+            .findById(principal.id())
+            .orElseThrow(
+                () -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
+
+    ApplicationEntity applicationEntity =
+        applicationRepository
+            .findById(applicationId)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException("Cannot find application by id= " + applicationId));
+
+    if (!applicationEntity.getUser().getId().equals(principal.id())) {
+      throw new AccessDeniedException("You are not allowed to create this reminder");
+    }
+
+    ReminderEntity reminderEntity =
+        new ReminderEntity(
+            null,
+            userEntity,
+            applicationEntity,
+            reminder.dueAt(),
+            ReminderStatus.PENDING,
+            reminder.message(),
+            null,
+            null);
+
+    reminderRepository.save(reminderEntity);
+    return reminderMapper.reminderToDto(reminderEntity);
+  }
+}

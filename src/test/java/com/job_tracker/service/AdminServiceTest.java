@@ -41,7 +41,7 @@ class AdminServiceTest {
   @Mock ApplicationMapper applicationMapper;
   @Mock UserMapper userMapper;
   @Mock PasswordEncoder passwordEncoder;
-  @InjectMocks AdminService adminService;
+  @InjectMocks AdminServiceImpl adminService;
 
   @Test
   void createAdmin() {

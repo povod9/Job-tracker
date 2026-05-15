@@ -5,6 +5,7 @@ import com.job_tracker.dto.ApplicationResponseDto;
 import com.job_tracker.dto.UserCreateRequestDto;
 import com.job_tracker.dto.UserResponseDto;
 import com.job_tracker.service.AdminService;
+import com.job_tracker.service.AdminServiceImpl;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;

@@ -1,6 +1,4 @@
-<<<<<<< Updated upstream
 package com.job_tracker.annotation;
-
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,24 +9,7 @@ import java.util.concurrent.TimeUnit;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TrackExecutionTime {
-    TimeUnit unit();
-    boolean debug() default true;
+  TimeUnit unit();
 
+  boolean debug() default true;
 }
-=======
-// package com.job_tracker.annotation;
-//
-//
-// import java.lang.annotation.ElementType;
-// import java.lang.annotation.Retention;
-// import java.lang.annotation.RetentionPolicy;
-// import java.lang.annotation.Target;
-// import java.util.concurrent.TimeUnit;
-//
-// @Target(ElementType.METHOD)
-// @Retention(RetentionPolicy.RUNTIME)
-// public @interface TrackExecutionTime {
-//    TimeUnit unit();
-//    boolean debug() default true;
-// }
->>>>>>> Stashed changes

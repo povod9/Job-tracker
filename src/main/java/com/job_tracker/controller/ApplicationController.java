@@ -4,6 +4,7 @@ import com.job_tracker.dto.ApplicationCreateRequestDto;
 import com.job_tracker.dto.ApplicationResponseDto;
 import com.job_tracker.enums.ApplicationStatus;
 import com.job_tracker.service.ApplicationService;
+import com.job_tracker.service.ApplicationServiceImpl;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;

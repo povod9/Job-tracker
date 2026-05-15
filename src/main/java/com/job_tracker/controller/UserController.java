@@ -2,6 +2,7 @@ package com.job_tracker.controller;
 
 import com.job_tracker.dto.*;
 import com.job_tracker.service.UserService;
+import com.job_tracker.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
