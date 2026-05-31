@@ -1,4 +1,11 @@
 package com.job_tracker.dto;
 
-public record VacancyCreateRequestDto() {
+
+import jakarta.validation.constraints.NotNull;
+
+public record VacancyCreateRequestDto(
+        @NotNull String company,
+        @NotNull String position,
+        @NotNull String description
+) {
 }
