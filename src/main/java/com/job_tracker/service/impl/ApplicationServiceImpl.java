@@ -1,6 +1,4 @@
-package com.job_tracker.service;
-
-import static com.job_tracker.helper_method.SecurityUtil.getCurrentPrincipalOrThrow;
+package com.job_tracker.service.impl;
 
 import com.job_tracker.create_exception.AccessDeniedException;
 import com.job_tracker.create_exception.InvalidApplicationStatusTransition;
@@ -10,12 +8,16 @@ import com.job_tracker.dto.PrincipalDto;
 import com.job_tracker.entity.ActivityEventEntity;
 import com.job_tracker.entity.ApplicationEntity;
 import com.job_tracker.entity.UserEntity;
+import com.job_tracker.entity.VacancyEntity;
 import com.job_tracker.enums.ActivityEventType;
 import com.job_tracker.enums.ApplicationStatus;
 import com.job_tracker.mapper.ApplicationMapper;
 import com.job_tracker.repository.ActivityRepository;
 import com.job_tracker.repository.ApplicationRepository;
 import com.job_tracker.repository.UserRepository;
+import com.job_tracker.repository.VacancyRepository;
+import com.job_tracker.service.ApplicationService;
+import com.job_tracker.service.SecurityContextService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +32,16 @@ public class ApplicationServiceImpl implements ApplicationService {
   private final UserRepository userRepository;
   private final ApplicationRepository applicationRepository;
   private final ActivityRepository activityRepository;
+  private final VacancyRepository vacancyRepository;
   private final ApplicationMapper applicationMapper;
+  private final SecurityContextService securityContextService;
 
-  @Transactional
+  @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  @Transactional
   public ApplicationResponseDto createApplication(ApplicationCreateRequestDto application) {
 
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
 
     UserEntity userEntity =
         userRepository
@@ -44,17 +49,17 @@ public class ApplicationServiceImpl implements ApplicationService {
             .orElseThrow(
                 () -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
 
-    if (applicationRepository.existsByUserIdAndCompanyAndPosition(
-        principal.id(), application.company(), application.position())) {
-      throw new IllegalArgumentException("Application already exists");
-    }
+    VacancyEntity vacancyEntity = vacancyRepository.findById(application.vacancyId())
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: "
+                            + application.vacancyId()));
+
+    securityContextService.validateOwnershipOrThrow(userEntity.getId());
 
     ApplicationEntity createdApplicationEntity =
         new ApplicationEntity(
             null,
             userEntity,
-            application.company(),
-            application.position(),
+            vacancyEntity,
             ApplicationStatus.DRAFT,
             null,
             null,
@@ -63,28 +68,23 @@ public class ApplicationServiceImpl implements ApplicationService {
     return applicationMapper.applicationToDto(saved);
   }
 
+  @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  @Transactional(readOnly = true)
   public List<ApplicationResponseDto> getMyApplication() {
-
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
-
-    UserEntity userEntity =
-        userRepository
-            .findById(principal.id())
-            .orElseThrow(
-                () -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
-
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
     List<ApplicationEntity> userApplicationEntity =
         applicationRepository.findByUserIdAndApplicationStatusNot(
             principal.id(), ApplicationStatus.DELETED);
     return applicationMapper.listApplicationToDto(userApplicationEntity);
   }
 
-  @Transactional
+  @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  @Transactional
   public ApplicationResponseDto deleteMyApplicationById(Long id) {
 
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
 
     ApplicationEntity applicationEntity =
         applicationRepository
@@ -112,12 +112,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     return applicationMapper.applicationToDto(applicationEntity);
   }
 
-  @Transactional
+  @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  @Transactional
   public ApplicationResponseDto updateMyApplicationStatusById(
       Long id, ApplicationStatus applicationStatus) {
 
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
 
     UserEntity userEntity =
         userRepository

@@ -7,10 +7,9 @@ import java.time.OffsetDateTime;
 
 public record ApplicationResponseDto(
     Long id,
-    @NotBlank UserResponseDto userDto,
-    @NotBlank String company,
-    @NotBlank String position,
-    @NotBlank ApplicationStatus applicationStatus,
-    @NotNull OffsetDateTime createdAt,
-    @NotNull OffsetDateTime updatedAt,
-    @NotNull Long version) {}
+    UserResponseDto userDto,
+    VacancyResponseDto vacancyDto,
+    ApplicationStatus applicationStatus,
+    OffsetDateTime createdAt,
+    OffsetDateTime updatedAt,
+    Long version) {}

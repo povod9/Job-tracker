@@ -16,5 +16,4 @@ public interface ApplicationRepository extends JpaRepository<ApplicationEntity, 
 
   List<ApplicationEntity> findByUserId(Long userId);
 
-  boolean existsByUserIdAndCompanyAndPosition(Long userId, String company, String position);
 }

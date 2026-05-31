@@ -4,7 +4,6 @@ import com.job_tracker.dto.ApplicationCreateRequestDto;
 import com.job_tracker.dto.ApplicationResponseDto;
 import com.job_tracker.enums.ApplicationStatus;
 import com.job_tracker.service.ApplicationService;
-import com.job_tracker.service.ApplicationServiceImpl;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -21,13 +20,13 @@ public class ApplicationController {
     this.applicationService = applicationService;
   }
 
-  @GetMapping("/me/application")
+  @GetMapping("/me/applications")
   public ResponseEntity<List<ApplicationResponseDto>> getMyApplication() {
     List<ApplicationResponseDto> applicationResponseDto = applicationService.getMyApplication();
     return ResponseEntity.ok(applicationResponseDto);
   }
 
-  @PostMapping("/me/create")
+  @PostMapping("/me")
   public ResponseEntity<ApplicationResponseDto> createApplication(
       @RequestBody @Valid ApplicationCreateRequestDto application) {
     ApplicationResponseDto applicationResponseDto =
@@ -35,7 +34,7 @@ public class ApplicationController {
     return ResponseEntity.status(HttpStatus.CREATED).body(applicationResponseDto);
   }
 
-  @PutMapping("/me/update/status/{id}")
+  @PutMapping("/me/status/{id}")
   public ResponseEntity<ApplicationResponseDto> updateMyApplicationStatusById(
       @PathVariable("id") Long id, @RequestParam ApplicationStatus applicationStatus) {
     ApplicationResponseDto applicationResponseDto =
@@ -43,7 +42,7 @@ public class ApplicationController {
     return ResponseEntity.ok(applicationResponseDto);
   }
 
-  @DeleteMapping("/me/delete/{id}")
+  @DeleteMapping("/me/{id}")
   public ResponseEntity<ApplicationResponseDto> deleteMyApplicationById(
       @PathVariable("id") Long id) {
     ApplicationResponseDto deletedApplicationResponseDto =

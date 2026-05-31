@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface ApplicationMapper {
 
   @Mapping(source = "user", target = "userDto")
+  @Mapping(source = "vacancy", target = "vacancyDto")
   ApplicationResponseDto applicationToDto(ApplicationEntity applicationEntity);
 
   @Mapping(source = "user", target = "userDto")

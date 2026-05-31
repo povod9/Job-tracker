@@ -1,5 +1,5 @@
 package com.job_tracker.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-public record ApplicationCreateRequestDto(@NotBlank String company, @NotBlank String position) {}
+public record ApplicationCreateRequestDto(@NotNull Long vacancyId) {}

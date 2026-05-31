@@ -23,11 +23,9 @@ public class ApplicationEntity {
   @JoinColumn(name = "user_id", nullable = false)
   private UserEntity user;
 
-  @Column(nullable = false)
-  private String company;
-
-  @Column(nullable = false)
-  private String position;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "vacancy_id", nullable = false)
+  private VacancyEntity vacancy;
 
   @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
