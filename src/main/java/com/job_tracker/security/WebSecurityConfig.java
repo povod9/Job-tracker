@@ -23,20 +23,20 @@ public class WebSecurityConfig {
         .authorizeHttpRequests(
             (authorizeRequests) ->
                 authorizeRequests
-                    .requestMatchers(HttpMethod.POST, "/user/register")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/user/login")
-                    .permitAll()
-                    .requestMatchers("/user/me/**")
-                    .hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/admin/register")
-                    .hasRole("ADMIN")
-                    .requestMatchers("/admin/**")
-                    .hasRole("ADMIN")
-                    .requestMatchers("/application/me/**")
-                    .hasAnyRole("USER", "ADMIN")
-                    .requestMatchers("/reminder/**")
-                    .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/user/register",
+                                "/user/login"
+                            ).permitAll()
+                        .requestMatchers("/vacancy/**").hasRole("HR")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/hr").hasAnyRole("ADMIN", "HR")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN", "HR")
                     .anyRequest()
                     .authenticated());
     return http.build();
