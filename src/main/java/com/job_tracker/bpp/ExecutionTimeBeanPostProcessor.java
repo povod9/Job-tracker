@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.cglib.proxy.Enhancer;
@@ -18,10 +19,10 @@ public class ExecutionTimeBeanPostProcessor implements BeanPostProcessor {
   public @Nullable Object postProcessBeforeInitialization(Object bean, String beanName)
       throws BeansException {
 
-    var beanClass = bean.getClass();
-    var beanInterface = beanClass.getInterfaces();
+    var targetClass = AopUtils.getTargetClass(bean);
+    var beanInterface = targetClass.getInterfaces();
 
-    var methods = beanClass.getDeclaredMethods();
+    var methods = targetClass.getDeclaredMethods();
     var methodsWithAnnotation =
         Arrays.stream(methods)
             .filter(m -> m.isAnnotationPresent(TrackExecutionTime.class))
@@ -37,10 +38,10 @@ public class ExecutionTimeBeanPostProcessor implements BeanPostProcessor {
       if (beanInterface.length > 0) {
         ExecutionTimeInvocationHandler invocationHandler =
             new ExecutionTimeInvocationHandler(bean, mapAnnotation);
-        return Proxy.newProxyInstance(beanClass.getClassLoader(), beanInterface, invocationHandler);
+        return Proxy.newProxyInstance(targetClass.getClassLoader(), beanInterface, invocationHandler);
       } else {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(beanClass);
+        enhancer.setSuperclass(targetClass);
         enhancer.setCallback(new ExecutionTimeMethodInterceptor(bean, mapAnnotation));
         return enhancer.create();
       }

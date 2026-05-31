@@ -32,8 +32,12 @@ public class ExecutionTimeMethodInterceptor implements MethodInterceptor {
       } finally {
         var endTime = System.nanoTime();
         var executionTime = unitTime.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-        String message =
-            target.getClass().getSimpleName() + " " + method.getName() + " " + executionTime;
+        String message = String.format("Class: [%s] | Method: [%s] | Time: [%d %s]",
+                target.getClass().getSimpleName(),
+                method.getName(),
+                executionTime,
+                unitTime.name()
+        );
         if (!mode) {
           log.info(message);
         } else {
