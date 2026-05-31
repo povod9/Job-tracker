@@ -2,7 +2,6 @@ package com.job_tracker.controller;
 
 import com.job_tracker.dto.*;
 import com.job_tracker.service.UserService;
-import com.job_tracker.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,7 @@ public class UserController {
     return ResponseEntity.ok(login);
   }
 
-  @PutMapping("/me/update/information")
+  @PutMapping("/me")
   public ResponseEntity<UserResponseDto> userToUpdate(@RequestBody UserUpdateDto user) {
     UserResponseDto userResponseDto = userService.userToUpdate(user);
     return ResponseEntity.ok(userResponseDto);

@@ -1,6 +1,4 @@
-package com.job_tracker.service;
-
-import static com.job_tracker.helper_method.SecurityUtil.getCurrentPrincipalOrThrow;
+package com.job_tracker.service.impl;
 
 import com.job_tracker.create_exception.InvalidCredentialsException;
 import com.job_tracker.dto.*;
@@ -9,8 +7,9 @@ import com.job_tracker.enums.Role;
 import com.job_tracker.mapper.UserMapper;
 import com.job_tracker.repository.*;
 import com.job_tracker.security.JwtCore;
+import com.job_tracker.service.SecurityContextService;
+import com.job_tracker.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,11 +24,13 @@ public class UserServiceImpl implements UserService {
   private final UserMapper mapper;
   private final PasswordEncoder passwordEncoder;
   private final JwtCore jwtCore;
+  private final SecurityContextService securityContextService;
 
+  @Override
   @Transactional
   public UserResponseDto userToCreate(UserCreateRequestDto user) {
     if (userRepository.existsByEmail(user.email())) {
-      throw new IllegalArgumentException("Email already exists");
+      throw new IllegalArgumentException("Email already exists: " + user.email());
     }
 
     UserEntity userEntity =
@@ -39,13 +40,14 @@ public class UserServiceImpl implements UserService {
             user.email(),
             passwordEncoder.encode(user.passwordHash()),
             Role.USER,
-            OffsetDateTime.now(),
-            OffsetDateTime.now());
+            null,
+            null);
 
     userEntity = userRepository.save(userEntity);
     return mapper.userToDto(userEntity);
   }
 
+  @Override
   public LoginResponseDto userToLogin(RequestLoginDto user) {
     UserEntity userEntity =
         userRepository
@@ -60,11 +62,12 @@ public class UserServiceImpl implements UserService {
     }
   }
 
+  @Override
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'HR')")
   @Transactional
-  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
   public UserResponseDto userToUpdate(UserUpdateDto user) {
 
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
 
     UserEntity userEntity =
         userRepository
@@ -95,7 +98,6 @@ public class UserServiceImpl implements UserService {
       userEntity.setPasswordHash(passwordEncoder.encode(user.passwordHash()));
     }
 
-    userEntity.setUpdatedAt(OffsetDateTime.now());
     userEntity = userRepository.save(userEntity);
     return mapper.userToDto(userEntity);
   }

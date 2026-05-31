@@ -1,6 +1,5 @@
-package com.job_tracker.service;
+package com.job_tracker.service.impl;
 
-import static com.job_tracker.helper_method.SecurityUtil.getCurrentPrincipalOrThrow;
 
 import com.job_tracker.create_exception.AccessDeniedException;
 import com.job_tracker.dto.PrincipalDto;
@@ -14,6 +13,8 @@ import com.job_tracker.mapper.ReminderMapper;
 import com.job_tracker.repository.ApplicationRepository;
 import com.job_tracker.repository.ReminderRepository;
 import com.job_tracker.repository.UserRepository;
+import com.job_tracker.service.ReminderService;
+import com.job_tracker.service.SecurityContextService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,22 +30,26 @@ public class ReminderServiceImpl implements ReminderService {
   private final UserRepository userRepository;
   private final ApplicationRepository applicationRepository;
   private final ReminderMapper reminderMapper;
+  private final SecurityContextService securityContextService;
 
-  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  @Override
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'HR')")
+  @Transactional(readOnly = true)
   public List<ReminderResponseDto> getMyReminder() {
 
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
 
     List<ReminderEntity> reminderEntities = reminderRepository.findAllByUserId(principal.id());
 
     return reminderMapper.listRemindersToDto(reminderEntities);
   }
 
+  @Override
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'HR')")
   @Transactional
-  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
   public ReminderResponseDto createReminder(Long applicationId, ReminderCreateRequestDto reminder) {
 
-    PrincipalDto principal = getCurrentPrincipalOrThrow();
+    PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
 
     UserEntity userEntity =
         userRepository

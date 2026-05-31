@@ -4,9 +4,7 @@ import com.job_tracker.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.OffsetDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,7 +12,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserEntity {
 
   @Id

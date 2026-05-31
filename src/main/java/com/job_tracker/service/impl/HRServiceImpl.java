@@ -7,7 +7,6 @@ import com.job_tracker.entity.UserEntity;
 import com.job_tracker.enums.Role;
 import com.job_tracker.mapper.UserMapper;
 import com.job_tracker.repository.UserRepository;
-import com.job_tracker.security.PasswordHash;
 import com.job_tracker.service.HRService;
 import com.job_tracker.service.SecurityContextService;
 import lombok.RequiredArgsConstructor;

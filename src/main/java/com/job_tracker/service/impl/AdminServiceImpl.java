@@ -1,11 +1,7 @@
-package com.job_tracker.service;
+package com.job_tracker.service.impl;
 
-// import com.job_tracker.annotation.TrackExecutionTime;
 import com.job_tracker.annotation.TrackExecutionTime;
-import com.job_tracker.dto.ActivityEventResponseDto;
-import com.job_tracker.dto.ApplicationResponseDto;
-import com.job_tracker.dto.UserCreateRequestDto;
-import com.job_tracker.dto.UserResponseDto;
+import com.job_tracker.dto.*;
 import com.job_tracker.entity.ActivityEventEntity;
 import com.job_tracker.entity.ApplicationEntity;
 import com.job_tracker.entity.UserEntity;
@@ -17,10 +13,12 @@ import com.job_tracker.mapper.UserMapper;
 import com.job_tracker.repository.ActivityRepository;
 import com.job_tracker.repository.ApplicationRepository;
 import com.job_tracker.repository.UserRepository;
+import com.job_tracker.service.AdminService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,8 +37,9 @@ public class AdminServiceImpl implements AdminService {
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
 
-  @Transactional
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
   public UserResponseDto createAdmin(UserCreateRequestDto user) {
 
     if (userRepository.existsByEmail(user.email())) {
@@ -61,7 +60,10 @@ public class AdminServiceImpl implements AdminService {
     return userMapper.userToDto(userEntity);
   }
 
-  @TrackExecutionTime(unit = TimeUnit.SECONDS, debug = false)
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
+  @TrackExecutionTime(unit = TimeUnit.MILLISECONDS, debug = false)
   public List<UserResponseDto> getAllUser() {
 
     List<UserEntity> userEntity = userRepository.findAll();
@@ -69,8 +71,9 @@ public class AdminServiceImpl implements AdminService {
     return userEntity.stream().map(userMapper::userToDto).toList();
   }
 
-  @TrackExecutionTime(unit = TimeUnit.SECONDS, debug = false)
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
   public UserResponseDto getUserByEmail(String email) {
     UserEntity userEntity =
         userRepository
@@ -80,8 +83,9 @@ public class AdminServiceImpl implements AdminService {
     return userMapper.userToDto(userEntity);
   }
 
-  @Transactional
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
   public UserResponseDto deleteUser(String email) {
     UserEntity userEntity =
         userRepository
@@ -92,8 +96,9 @@ public class AdminServiceImpl implements AdminService {
     return userMapper.userToDto(userEntity);
   }
 
-  @TrackExecutionTime(unit = TimeUnit.MILLISECONDS, debug = false)
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
   public List<ApplicationResponseDto> getDeletedApplication() {
     List<ApplicationEntity> applicationEntity =
         applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
@@ -101,7 +106,9 @@ public class AdminServiceImpl implements AdminService {
     return applicationMapper.listApplicationToDto(applicationEntity);
   }
 
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
   public List<ActivityEventResponseDto> getAllActivityEvent() {
     List<ActivityEventEntity> activityEventEntities = activityRepository.findAll();
 
