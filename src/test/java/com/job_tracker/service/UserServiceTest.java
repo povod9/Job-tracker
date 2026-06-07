@@ -208,7 +208,10 @@ class AdminServiceTest {
               createVacancyResponseDto().position(),
               createVacancyResponseDto().description(),
               createUserEntity(),
-              VacancyStatus.ACTIVE
+              VacancyStatus.ACTIVE,
+              OffsetDateTime.now(),
+              OffsetDateTime.now(),
+              0L
       );
   }
   private UserEntity createUserEntity(){
@@ -228,7 +231,8 @@ class AdminServiceTest {
               1L,
               "Nike",
               "Junior",
-              "Description"
+              "Description",
+              VacancyStatus.ACTIVE
       );
   }
   private UserResponseDto createUserResponseDto(){

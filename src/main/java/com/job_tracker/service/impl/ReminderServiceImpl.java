@@ -1,7 +1,6 @@
 package com.job_tracker.service.impl;
 
-
-import com.job_tracker.create_exception.AccessDeniedException;
+import com.job_tracker.create_exception.InvalidDueAtException;
 import com.job_tracker.dto.PrincipalDto;
 import com.job_tracker.dto.ReminderCreateRequestDto;
 import com.job_tracker.dto.ReminderResponseDto;
@@ -16,6 +15,8 @@ import com.job_tracker.repository.UserRepository;
 import com.job_tracker.service.ReminderService;
 import com.job_tracker.service.SecurityContextService;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,6 +51,10 @@ public class ReminderServiceImpl implements ReminderService {
   public ReminderResponseDto createReminder(Long applicationId, ReminderCreateRequestDto reminder) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
+    securityContextService.validateOwnershipOrThrow(principal.id());
+    if(reminder.dueAt().isBefore(OffsetDateTime.now().minusSeconds(1))){
+      throw new InvalidDueAtException("Reminder date cannot be in the past: " + reminder.dueAt());
+    }
 
     UserEntity userEntity =
         userRepository
@@ -64,10 +69,6 @@ public class ReminderServiceImpl implements ReminderService {
                 () ->
                     new EntityNotFoundException("Cannot find application by id= " + applicationId));
 
-    if (!applicationEntity.getUser().getId().equals(principal.id())) {
-      throw new AccessDeniedException("You are not allowed to create this reminder");
-    }
-
     ReminderEntity reminderEntity =
         new ReminderEntity(
             null,
@@ -79,7 +80,7 @@ public class ReminderServiceImpl implements ReminderService {
             null,
             null);
 
-    reminderRepository.save(reminderEntity);
-    return reminderMapper.reminderToDto(reminderEntity);
+    ReminderEntity savedReminder = reminderRepository.save(reminderEntity);
+    return reminderMapper.reminderToDto(savedReminder);
   }
 }

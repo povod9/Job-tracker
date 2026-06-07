@@ -1,6 +1,5 @@
 package com.job_tracker.service.impl;
 
-import com.job_tracker.create_exception.AccessDeniedException;
 import com.job_tracker.create_exception.InvalidApplicationStatusTransition;
 import com.job_tracker.dto.ApplicationCreateRequestDto;
 import com.job_tracker.dto.ApplicationResponseDto;
@@ -42,23 +41,18 @@ public class ApplicationServiceImpl implements ApplicationService {
   public ApplicationResponseDto createApplication(ApplicationCreateRequestDto application) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-
-    UserEntity userEntity =
-        userRepository
-            .findById(principal.id())
-            .orElseThrow(
-                () -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
+    securityContextService.validateOwnershipOrThrow(principal.id());
 
     VacancyEntity vacancyEntity = vacancyRepository.findById(application.vacancyId())
                     .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: "
                             + application.vacancyId()));
 
-    securityContextService.validateOwnershipOrThrow(userEntity.getId());
+    UserEntity userProxy = userRepository.getReferenceById(principal.id());
 
     ApplicationEntity createdApplicationEntity =
         new ApplicationEntity(
             null,
-            userEntity,
+            userProxy,
             vacancyEntity,
             ApplicationStatus.DRAFT,
             null,
@@ -85,6 +79,7 @@ public class ApplicationServiceImpl implements ApplicationService {
   public ApplicationResponseDto deleteMyApplicationById(Long id) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
+    securityContextService.validateOwnershipOrThrow(principal.id());
 
     ApplicationEntity applicationEntity =
         applicationRepository
@@ -94,11 +89,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     UserEntity userEntity =
         userRepository
             .findById(principal.id())
-            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + id));
-
-    if (!applicationEntity.getUser().getId().equals(principal.id())) {
-      throw new AccessDeniedException("You are not allowed to delete this application");
-    }
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
 
     applicationEntity.setApplicationStatus(ApplicationStatus.DELETED);
 
@@ -116,9 +107,10 @@ public class ApplicationServiceImpl implements ApplicationService {
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
   @Transactional
   public ApplicationResponseDto updateMyApplicationStatusById(
-      Long id, ApplicationStatus applicationStatus) {
+      Long id, ApplicationStatus status) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
+    securityContextService.validateOwnershipOrThrow(principal.id());
 
     UserEntity userEntity =
         userRepository
@@ -130,23 +122,29 @@ public class ApplicationServiceImpl implements ApplicationService {
             .findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Cannot find application by id= " + id));
 
-    if (!applicationEntity.getApplicationStatus().canTransitionTo(applicationStatus)) {
+    if (!applicationEntity.getApplicationStatus().canTransitionTo(status)) {
       throw new InvalidApplicationStatusTransition(
-          "Application status can't be transitioned to " + applicationStatus);
-    }
-
-    if (!applicationEntity.getUser().getId().equals(principal.id())) {
-      throw new AccessDeniedException("You are not allowed to update this application");
+          "Application status can't be transitioned to " + status);
     }
 
     ActivityEventEntity activityEventEntity =
         new ActivityEventEntity(
             null, applicationEntity, ActivityEventType.STATUS_CHANGED, null, userEntity);
 
-    applicationEntity.setApplicationStatus(applicationStatus);
+    applicationEntity.setApplicationStatus(status);
     applicationRepository.save(applicationEntity);
     activityRepository.save(activityEventEntity);
 
     return applicationMapper.applicationToDto(applicationEntity);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
+  public List<ApplicationResponseDto> getDeletedApplication() {
+    List<ApplicationEntity> applicationEntity =
+            applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
+
+    return applicationMapper.listApplicationToDto(applicationEntity);
   }
 }

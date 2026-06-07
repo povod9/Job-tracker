@@ -34,11 +34,11 @@ public class ApplicationController {
     return ResponseEntity.status(HttpStatus.CREATED).body(applicationResponseDto);
   }
 
-  @PutMapping("/me/status/{id}")
+  @PutMapping("/me/{id}")
   public ResponseEntity<ApplicationResponseDto> updateMyApplicationStatusById(
-      @PathVariable("id") Long id, @RequestParam ApplicationStatus applicationStatus) {
+      @PathVariable("id") Long id, @RequestParam(name = "status") ApplicationStatus status) {
     ApplicationResponseDto applicationResponseDto =
-        applicationService.updateMyApplicationStatusById(id, applicationStatus);
+        applicationService.updateMyApplicationStatusById(id, status);
     return ResponseEntity.ok(applicationResponseDto);
   }
 
@@ -48,5 +48,11 @@ public class ApplicationController {
     ApplicationResponseDto deletedApplicationResponseDto =
         applicationService.deleteMyApplicationById(id);
     return ResponseEntity.ok(deletedApplicationResponseDto);
+  }
+
+  @GetMapping("/applications")
+  public ResponseEntity<List<ApplicationResponseDto>> getDeletedApplication() {
+    List<ApplicationResponseDto> applicationResponseDtoList = applicationService.getDeletedApplication();
+    return ResponseEntity.ok(applicationResponseDtoList);
   }
 }

@@ -13,5 +13,8 @@ public interface ApplicationService {
   ApplicationResponseDto deleteMyApplicationById(Long id);
 
   ApplicationResponseDto updateMyApplicationStatusById(
-      Long id, ApplicationStatus applicationStatus);
+      Long id, ApplicationStatus status);
+
+  List<ApplicationResponseDto> getDeletedApplication();
+
 }

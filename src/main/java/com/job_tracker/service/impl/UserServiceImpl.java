@@ -1,6 +1,9 @@
 package com.job_tracker.service.impl;
 
+import com.job_tracker.annotation.TrackExecutionTime;
 import com.job_tracker.create_exception.InvalidCredentialsException;
+import com.job_tracker.create_exception.InvalidPasswordException;
+import com.job_tracker.create_exception.SamePasswordException;
 import com.job_tracker.dto.*;
 import com.job_tracker.entity.UserEntity;
 import com.job_tracker.enums.Role;
@@ -11,10 +14,14 @@ import com.job_tracker.service.SecurityContextService;
 import com.job_tracker.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +45,7 @@ public class UserServiceImpl implements UserService {
             null,
             user.name(),
             user.email(),
-            passwordEncoder.encode(user.passwordHash()),
+            passwordEncoder.encode(user.password()),
             Role.USER,
             null,
             null);
@@ -55,7 +62,7 @@ public class UserServiceImpl implements UserService {
             .orElseThrow(
                 () -> new EntityNotFoundException("Cannot find user by email " + user.email()));
 
-    if (passwordEncoder.matches(user.passwordHash(), userEntity.getPasswordHash())) {
+    if (passwordEncoder.matches(user.password(), userEntity.getPassword())) {
       return new LoginResponseDto(jwtCore.generateJwtToken(userEntity), "Bearer");
     } else {
       throw new InvalidCredentialsException("Wrong password or email");
@@ -90,15 +97,61 @@ public class UserServiceImpl implements UserService {
 
       userEntity.setEmail(user.email());
     }
-
-    if (user.passwordHash() != null) {
-      if (passwordEncoder.matches(user.passwordHash(), userEntity.getPasswordHash())) {
-        throw new IllegalArgumentException("Password cannot be the same");
-      }
-      userEntity.setPasswordHash(passwordEncoder.encode(user.passwordHash()));
-    }
-
     userEntity = userRepository.save(userEntity);
     return mapper.userToDto(userEntity);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
+  @TrackExecutionTime(unit = TimeUnit.MILLISECONDS, debug = false)
+  public Page<UserResponseDto> getAllUsers(Pageable pageable) {
+    return userRepository.findAll(pageable)
+            .map(mapper::userToDto);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
+  public UserResponseDto getUserByEmail(String email) {
+    UserEntity userEntity =
+            userRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
+
+    return mapper.userToDto(userEntity);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public UserResponseDto deleteUser(String email) {
+    UserEntity userEntity =
+            userRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
+
+    userRepository.delete(userEntity);
+    return mapper.userToDto(userEntity);
+  }
+
+  @Override
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'HR')")
+  @Transactional
+  public void userUpdatePassword(UserUpdatePasswordRequestDto passwordUpdate) {
+    PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+    UserEntity userEntity = userRepository.findById(principalDto.id())
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id: " + principalDto.id()));
+
+    if(!passwordEncoder.matches(passwordUpdate.currentPassword(),userEntity.getPassword())){
+     throw new InvalidPasswordException("Wrong current password");
+    }
+
+    if(passwordEncoder.matches(passwordUpdate.newPassword(), userEntity.getPassword())){
+      throw new SamePasswordException("The new password cannot be the same as the old");
+    }
+
+    userEntity.setPassword(passwordEncoder.encode(passwordUpdate.newPassword()));
+
   }
 }
