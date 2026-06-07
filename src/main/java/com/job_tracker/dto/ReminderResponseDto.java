@@ -7,7 +7,7 @@ public record ReminderResponseDto(
     Long id,
     ReminderApplicationResponseDto reminderApplicationResponseDto,
     OffsetDateTime dueAt,
-    ReminderStatus reminderStatus,
+    ReminderStatus status,
     String message,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt) {}
