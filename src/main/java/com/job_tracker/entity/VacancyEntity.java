@@ -3,6 +3,9 @@ package com.job_tracker.entity;
 import com.job_tracker.enums.VacancyStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "vacancies")
@@ -28,7 +31,19 @@ public class VacancyEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private VacancyStatus status;
+
+    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
+    private OffsetDateTime updatedAt;
+
+    @Column(name = "version", nullable = false)
+    @Version
+    private Long version;
 }

@@ -1,4 +1,9 @@
 package com.job_tracker.dto;
 
-public record VacancyUpdateDto() {
+
+public record VacancyUpdateDto(
+        String company,
+        String position,
+        String description
+) {
 }

@@ -3,6 +3,7 @@ package com.job_tracker.service.impl;
 import com.job_tracker.dto.PrincipalDto;
 import com.job_tracker.dto.VacancyCreateRequestDto;
 import com.job_tracker.dto.VacancyResponseDto;
+import com.job_tracker.dto.VacancyUpdateDto;
 import com.job_tracker.entity.UserEntity;
 import com.job_tracker.entity.VacancyEntity;
 import com.job_tracker.enums.VacancyStatus;
@@ -56,7 +57,10 @@ public class VacancyServiceImpl implements VacancyService {
                 vacancyCreateRequestDto.position(),
                 vacancyCreateRequestDto.description(),
                 proxyEntity,
-                VacancyStatus.ACTIVE
+                VacancyStatus.ACTIVE,
+                null,
+                null,
+                null
         );
 
 
@@ -84,5 +88,17 @@ public class VacancyServiceImpl implements VacancyService {
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
         securityContextService.validateOwnershipOrThrow(vacancyEntity.getUser().getId());
         vacancyEntity.setStatus(VacancyStatus.DELETED);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('HR')")
+    @Transactional
+    public VacancyResponseDto updateVacancy(Long id, VacancyUpdateDto vacancyUpdateDto) {
+        PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+        VacancyEntity vacancyEntity = vacancyRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
+
+        mapper.updateVacancyFromRequest(vacancyUpdateDto, vacancyEntity);
+        return mapper.entityToDto(vacancyEntity);
     }
 }
