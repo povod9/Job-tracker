@@ -18,8 +18,9 @@ import com.job_tracker.repository.VacancyRepository;
 import com.job_tracker.service.ApplicationService;
 import com.job_tracker.service.SecurityContextService;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,12 +66,10 @@ public class ApplicationServiceImpl implements ApplicationService {
   @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
   @Transactional(readOnly = true)
-  public List<ApplicationResponseDto> getMyApplication() {
+  public Page<ApplicationResponseDto> getMyApplication(Pageable pageable) {
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-    List<ApplicationEntity> userApplicationEntity =
-        applicationRepository.findByUserIdAndApplicationStatusNot(
-            principal.id(), ApplicationStatus.DELETED);
-    return applicationMapper.listApplicationToDto(userApplicationEntity);
+    return applicationRepository.findAllByUserId(principal.id(), pageable)
+            .map(applicationMapper::applicationToDto);
   }
 
   @Override
@@ -79,7 +78,6 @@ public class ApplicationServiceImpl implements ApplicationService {
   public ApplicationResponseDto deleteMyApplicationById(Long id) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-    securityContextService.validateOwnershipOrThrow(principal.id());
 
     ApplicationEntity applicationEntity =
         applicationRepository
@@ -141,10 +139,8 @@ public class ApplicationServiceImpl implements ApplicationService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional(readOnly = true)
-  public List<ApplicationResponseDto> getDeletedApplication() {
-    List<ApplicationEntity> applicationEntity =
-            applicationRepository.findByApplicationStatus(ApplicationStatus.DELETED);
-
-    return applicationMapper.listApplicationToDto(applicationEntity);
+  public Page<ApplicationResponseDto> getDeletedApplication(Pageable pageable) {
+    return applicationRepository.findAll(pageable)
+            .map(applicationMapper::applicationToDto);
   }
 }

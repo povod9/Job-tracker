@@ -4,11 +4,11 @@ import com.job_tracker.dto.VacancyCreateRequestDto;
 import com.job_tracker.dto.VacancyResponseDto;
 import com.job_tracker.dto.VacancyUpdateDto;
 import com.job_tracker.enums.VacancyStatus;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface VacancyService {
-    List<VacancyResponseDto> getAllMyVacancy(VacancyStatus status);
+    Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable);
 
     VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto);
 

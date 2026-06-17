@@ -6,6 +6,10 @@ import com.job_tracker.enums.ApplicationStatus;
 import com.job_tracker.service.ApplicationService;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +25,13 @@ public class ApplicationController {
   }
 
   @GetMapping("/me/applications")
-  public ResponseEntity<List<ApplicationResponseDto>> getMyApplication() {
-    List<ApplicationResponseDto> applicationResponseDto = applicationService.getMyApplication();
+  public ResponseEntity<Page<ApplicationResponseDto>> getMyApplication(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "20") int size,
+          @RequestParam(defaultValue = "id") String sortBy
+  ) {
+    Pageable pageable = PageRequest.of(page,size, Sort.by(sortBy));
+    Page<ApplicationResponseDto> applicationResponseDto = applicationService.getMyApplication(pageable);
     return ResponseEntity.ok(applicationResponseDto);
   }
 
@@ -51,8 +60,14 @@ public class ApplicationController {
   }
 
   @GetMapping("/applications")
-  public ResponseEntity<List<ApplicationResponseDto>> getDeletedApplication() {
-    List<ApplicationResponseDto> applicationResponseDtoList = applicationService.getDeletedApplication();
+  public ResponseEntity<Page<ApplicationResponseDto>> getDeletedApplication(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "20") int size,
+          @RequestParam(defaultValue = "id") String sortBy
+
+  ) {
+    Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
+    Page<ApplicationResponseDto> applicationResponseDtoList = applicationService.getDeletedApplication(pageable);
     return ResponseEntity.ok(applicationResponseDtoList);
   }
 }

@@ -15,10 +15,10 @@ import com.job_tracker.repository.UserRepository;
 import com.job_tracker.service.ReminderService;
 import com.job_tracker.service.SecurityContextService;
 import jakarta.persistence.EntityNotFoundException;
-
 import java.time.OffsetDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,13 +36,10 @@ public class ReminderServiceImpl implements ReminderService {
   @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'HR')")
   @Transactional(readOnly = true)
-  public List<ReminderResponseDto> getMyReminder() {
-
+  public Page<ReminderResponseDto> getMyReminder(Pageable pageable) {
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-
-    List<ReminderEntity> reminderEntities = reminderRepository.findAllByUserId(principal.id());
-
-    return reminderMapper.listRemindersToDto(reminderEntities);
+    return reminderRepository.findAllByUserId(principal.id(), pageable)
+            .map(reminderMapper::reminderToDto);
   }
 
   @Override

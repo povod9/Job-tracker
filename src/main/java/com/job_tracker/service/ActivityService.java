@@ -1,10 +1,10 @@
 package com.job_tracker.service;
 
 import com.job_tracker.dto.ActivityEventResponseDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ActivityService {
-    List<ActivityEventResponseDto> getAllActivityEvent();
+    Page<ActivityEventResponseDto> getAllActivityEvent(Pageable pageable);
 
 }

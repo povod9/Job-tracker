@@ -14,11 +14,11 @@ import com.job_tracker.service.SecurityContextService;
 import com.job_tracker.service.VacancyService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +32,15 @@ public class VacancyServiceImpl implements VacancyService {
     @Override
     @PreAuthorize("hasRole('HR')")
     @Transactional(readOnly = true)
-    public List<VacancyResponseDto> getAllMyVacancy(VacancyStatus status) {
+    public Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable) {
         PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-        List<VacancyEntity> vacancies;
+        Page<VacancyEntity> vacancies;
         if(status != null){
-            vacancies = vacancyRepository.findAllByUserIdAndStatus(principalDto.id(), status);
+            vacancies = vacancyRepository.findAllByUserIdAndStatus(principalDto.id(), status, pageable);
         }else {
-            vacancies = vacancyRepository.findAllByUserIdAndStatusNot(principalDto.id(), VacancyStatus.DELETED);
+            vacancies = vacancyRepository.findAllByUserIdAndStatusNot(principalDto.id(), VacancyStatus.DELETED, pageable);
         }
-        return vacancies.stream()
-                .map(mapper::entityToDto)
-                .toList();
+        return vacancies.map(mapper::entityToDto);
     }
 
     @Override

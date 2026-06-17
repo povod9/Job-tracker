@@ -22,7 +22,6 @@ public class SecurityContextServiceImpl implements SecurityContextService {
     @Override
     public void validateOwnershipOrThrow(Long id) {
         PrincipalDto principalDto = getCurrentPrincipalOrThrow();
-
         if(!principalDto.id().equals(id)){
             throw new AccessDeniedException("You do not have permission to modify or view this resource");
         }

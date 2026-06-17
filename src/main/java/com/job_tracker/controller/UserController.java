@@ -48,7 +48,7 @@ public class UserController {
           @RequestParam(defaultValue = "id") String sortBy
   ) {
     Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-    org.springframework.data.domain.Page<UserResponseDto> users = userService.getAllUsers(pageable);
+    Page<UserResponseDto> users = userService.getAllUsers(pageable);
     return ResponseEntity.ok(users);
   }
 
