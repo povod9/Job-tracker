@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -49,5 +50,17 @@ public class GlobalExceptionHandler {
     ExceptionDto exceptionDto =
         new ExceptionDto("Invalid Application Status", e.getMessage(), OffsetDateTime.now());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(exceptionDto);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ExceptionDto> handleMethodArgumentNotValidException(
+          MethodArgumentNotValidException e
+  ) {
+    ExceptionDto exceptionDto = new ExceptionDto(
+            "Method Argument Not Valid",
+            e.getBindingResult().getFieldError().getDefaultMessage().replace("\n", " "),
+            OffsetDateTime.now()
+    );
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDto);
   }
 }
