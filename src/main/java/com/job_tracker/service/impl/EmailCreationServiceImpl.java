@@ -15,26 +15,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EmailCreationServiceImpl implements EmailCreationService {
 
-    private final EmailRepository emailRepository;
+  private final EmailRepository emailRepository;
 
-    @Transactional
-    public void createEmailForReminder(ReminderEntity reminder){
-        try{
-            EmailEntity emailEntity = new EmailEntity(
-                    null,
-                    reminder.getUser(),
-                    reminder,
-                    EmailStatus.PENDING,
-                    null,
-                    null,
-                    0,
-                    null
-            );
-            emailRepository.save(emailEntity);
-            log.debug("Created email for reminder {} (user: {})",
-                    reminder.getId(), reminder.getUser().getEmail());
-        } catch (Exception e) {
-            log.error("Failed to create email for reminder {}: {}", reminder.getId(), e.getMessage());
-        }
+  @Transactional
+  public void createEmailForReminder(ReminderEntity reminder) {
+    try {
+      EmailEntity emailEntity =
+          new EmailEntity(
+              null, reminder.getUser(), reminder, EmailStatus.PENDING, null, null, 0, null);
+      emailRepository.save(emailEntity);
+      log.debug(
+          "Created email for reminder {} (user: {})",
+          reminder.getId(),
+          reminder.getUser().getEmail());
+    } catch (Exception e) {
+      log.error("Failed to create email for reminder {}: {}", reminder.getId(), e.getMessage());
     }
+  }
 }

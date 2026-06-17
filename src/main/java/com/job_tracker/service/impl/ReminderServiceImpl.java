@@ -38,8 +38,9 @@ public class ReminderServiceImpl implements ReminderService {
   @Transactional(readOnly = true)
   public Page<ReminderResponseDto> getMyReminder(Pageable pageable) {
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-    return reminderRepository.findAllByUserId(principal.id(), pageable)
-            .map(reminderMapper::reminderToDto);
+    return reminderRepository
+        .findAllByUserId(principal.id(), pageable)
+        .map(reminderMapper::reminderToDto);
   }
 
   @Override
@@ -49,7 +50,7 @@ public class ReminderServiceImpl implements ReminderService {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
     securityContextService.validateOwnershipOrThrow(principal.id());
-    if(reminder.dueAt().isBefore(OffsetDateTime.now().minusSeconds(1))){
+    if (reminder.dueAt().isBefore(OffsetDateTime.now().minusSeconds(1))) {
       throw new InvalidDueAtException("Reminder date cannot be in the past: " + reminder.dueAt());
     }
 

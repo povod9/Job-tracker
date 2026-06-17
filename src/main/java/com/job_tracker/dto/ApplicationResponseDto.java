@@ -1,8 +1,6 @@
 package com.job_tracker.dto;
 
 import com.job_tracker.enums.ApplicationStatus;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 public record ApplicationResponseDto(

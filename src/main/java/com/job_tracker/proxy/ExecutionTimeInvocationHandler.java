@@ -19,7 +19,7 @@ public class ExecutionTimeInvocationHandler implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
     Method targetMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
-    if(targetMethod.isAnnotationPresent(TrackExecutionTime.class)){
+    if (targetMethod.isAnnotationPresent(TrackExecutionTime.class)) {
       TrackExecutionTime annotation = targetMethod.getAnnotation(TrackExecutionTime.class);
       var startTime = System.nanoTime();
       var unitTime = annotation.unit();
@@ -31,12 +31,13 @@ public class ExecutionTimeInvocationHandler implements InvocationHandler {
       } finally {
         var endTime = System.nanoTime();
         var executionTime = unitTime.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-        String message = String.format("Class: [%s] | Method: [%s] | Time: [%d %s]",
+        String message =
+            String.format(
+                "Class: [%s] | Method: [%s] | Time: [%d %s]",
                 target.getClass().getSimpleName(),
                 method.getName(),
                 executionTime,
-                unitTime.name()
-        );
+                unitTime.name());
         if (!mode) {
           log.info(message);
         } else {

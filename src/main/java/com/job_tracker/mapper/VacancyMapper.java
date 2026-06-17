@@ -8,9 +8,9 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface VacancyMapper {
 
-    VacancyResponseDto entityToDto(VacancyEntity vacancyEntity);
+  VacancyResponseDto entityToDto(VacancyEntity vacancyEntity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateVacancyFromRequest(
-            VacancyUpdateDto vacancyUpdateDto, @MappingTarget VacancyEntity vacancyEntity);
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void updateVacancyFromRequest(
+      VacancyUpdateDto vacancyUpdateDto, @MappingTarget VacancyEntity vacancyEntity);
 }

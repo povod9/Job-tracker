@@ -24,79 +24,86 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VacancyServiceImpl implements VacancyService {
 
-    private final VacancyRepository vacancyRepository;
-    private final UserRepository userRepository;
-    private final VacancyMapper mapper;
-    private final SecurityContextService securityContextService;
+  private final VacancyRepository vacancyRepository;
+  private final UserRepository userRepository;
+  private final VacancyMapper mapper;
+  private final SecurityContextService securityContextService;
 
-    @Override
-    @PreAuthorize("hasRole('HR')")
-    @Transactional(readOnly = true)
-    public Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable) {
-        PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-        Page<VacancyEntity> vacancies;
-        if(status != null){
-            vacancies = vacancyRepository.findAllByUserIdAndStatus(principalDto.id(), status, pageable);
-        }else {
-            vacancies = vacancyRepository.findAllByUserIdAndStatusNot(principalDto.id(), VacancyStatus.DELETED, pageable);
-        }
-        return vacancies.map(mapper::entityToDto);
+  @Override
+  @PreAuthorize("hasRole('HR')")
+  @Transactional(readOnly = true)
+  public Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable) {
+    PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+    Page<VacancyEntity> vacancies;
+    if (status != null) {
+      vacancies = vacancyRepository.findAllByUserIdAndStatus(principalDto.id(), status, pageable);
+    } else {
+      vacancies =
+          vacancyRepository.findAllByUserIdAndStatusNot(
+              principalDto.id(), VacancyStatus.DELETED, pageable);
     }
+    return vacancies.map(mapper::entityToDto);
+  }
 
-    @Override
-    @PreAuthorize("hasRole('HR')")
-    @Transactional
-    public VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto) {
-        PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-        UserEntity proxyEntity = userRepository.getReferenceById(principalDto.id());
-        VacancyEntity createdVacancyEntity = new VacancyEntity(
-                null,
-                vacancyCreateRequestDto.company(),
-                vacancyCreateRequestDto.position(),
-                vacancyCreateRequestDto.description(),
-                proxyEntity,
-                VacancyStatus.ACTIVE,
-                null,
-                null,
-                null
-        );
+  @Override
+  @PreAuthorize("hasRole('HR')")
+  @Transactional
+  public VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto) {
+    PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+    UserEntity proxyEntity = userRepository.getReferenceById(principalDto.id());
+    VacancyEntity createdVacancyEntity =
+        new VacancyEntity(
+            null,
+            vacancyCreateRequestDto.company(),
+            vacancyCreateRequestDto.position(),
+            vacancyCreateRequestDto.description(),
+            proxyEntity,
+            VacancyStatus.ACTIVE,
+            null,
+            null,
+            null);
 
+    vacancyRepository.save(createdVacancyEntity);
+    return mapper.entityToDto(createdVacancyEntity);
+  }
 
-        vacancyRepository.save(createdVacancyEntity);
-        return mapper.entityToDto(createdVacancyEntity);
-    }
+  @Override
+  @PreAuthorize("hasRole('HR')")
+  @Transactional(readOnly = true)
+  public VacancyResponseDto getVacancyById(Long id) {
+    PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+    VacancyEntity vacancyEntity =
+        vacancyRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
+    securityContextService.validateOwnershipOrThrow(vacancyEntity.getUser().getId());
+    return mapper.entityToDto(vacancyEntity);
+  }
 
-    @Override
-    @PreAuthorize("hasRole('HR')")
-    @Transactional(readOnly = true)
-    public VacancyResponseDto getVacancyById(Long id) {
-        PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-        VacancyEntity vacancyEntity = vacancyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
-        securityContextService.validateOwnershipOrThrow(vacancyEntity.getUser().getId());
-        return mapper.entityToDto(vacancyEntity);
-    }
+  @Override
+  @PreAuthorize("hasRole('HR')")
+  @Transactional
+  public void deleteVacancy(Long id) {
+    PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+    VacancyEntity vacancyEntity =
+        vacancyRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
+    securityContextService.validateOwnershipOrThrow(vacancyEntity.getUser().getId());
+    vacancyEntity.setStatus(VacancyStatus.DELETED);
+  }
 
-    @Override
-    @PreAuthorize("hasRole('HR')")
-    @Transactional
-    public void deleteVacancy(Long id) {
-        PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-        VacancyEntity vacancyEntity = vacancyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
-        securityContextService.validateOwnershipOrThrow(vacancyEntity.getUser().getId());
-        vacancyEntity.setStatus(VacancyStatus.DELETED);
-    }
+  @Override
+  @PreAuthorize("hasRole('HR')")
+  @Transactional
+  public VacancyResponseDto updateVacancy(Long id, VacancyUpdateDto vacancyUpdateDto) {
+    PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
+    VacancyEntity vacancyEntity =
+        vacancyRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
 
-    @Override
-    @PreAuthorize("hasRole('HR')")
-    @Transactional
-    public VacancyResponseDto updateVacancy(Long id, VacancyUpdateDto vacancyUpdateDto) {
-        PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-        VacancyEntity vacancyEntity = vacancyRepository.findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: " + id));
-
-        mapper.updateVacancyFromRequest(vacancyUpdateDto, vacancyEntity);
-        return mapper.entityToDto(vacancyEntity);
-    }
+    mapper.updateVacancyFromRequest(vacancyUpdateDto, vacancyEntity);
+    return mapper.entityToDto(vacancyEntity);
+  }
 }

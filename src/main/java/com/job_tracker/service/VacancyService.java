@@ -8,13 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface VacancyService {
-    Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable);
+  Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable);
 
-    VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto);
+  VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto);
 
-    VacancyResponseDto getVacancyById(Long id);
+  VacancyResponseDto getVacancyById(Long id);
 
-    void deleteVacancy(Long id);
+  void deleteVacancy(Long id);
 
-    VacancyResponseDto updateVacancy(Long id, VacancyUpdateDto vacancyUpdateDto);
+  VacancyResponseDto updateVacancy(Long id, VacancyUpdateDto vacancyUpdateDto);
 }

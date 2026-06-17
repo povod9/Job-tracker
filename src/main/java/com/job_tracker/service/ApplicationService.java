@@ -6,8 +6,6 @@ import com.job_tracker.enums.ApplicationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface ApplicationService {
   ApplicationResponseDto createApplication(ApplicationCreateRequestDto application);
 
@@ -15,9 +13,7 @@ public interface ApplicationService {
 
   ApplicationResponseDto deleteMyApplicationById(Long id);
 
-  ApplicationResponseDto updateMyApplicationStatusById(
-      Long id, ApplicationStatus status);
+  ApplicationResponseDto updateMyApplicationStatusById(Long id, ApplicationStatus status);
 
   Page<ApplicationResponseDto> getDeletedApplication(Pageable pageable);
-
 }

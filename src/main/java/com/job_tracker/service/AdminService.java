@@ -5,6 +5,4 @@ import com.job_tracker.dto.UserResponseDto;
 
 public interface AdminService {
   UserResponseDto createAdmin(UserCreateRequestDto user);
-
-
 }

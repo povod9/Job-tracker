@@ -4,7 +4,6 @@ import com.job_tracker.entity.ReminderEntity;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -21,7 +20,8 @@ public interface ReminderRepository extends JpaRepository<ReminderEntity, Long> 
   @EntityGraph(attributePaths = {"application", "application.vacancy"})
   Optional<ReminderEntity> findById(Long id);
 
-  @Query("""
+  @Query(
+      """
       SELECT r FROM ReminderEntity r
       LEFT JOIN EmailEntity e ON r.id = e.reminder.id
       WHERE r.dueAt < :now

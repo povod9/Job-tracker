@@ -54,13 +54,12 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ExceptionDto> handleMethodArgumentNotValidException(
-          MethodArgumentNotValidException e
-  ) {
-    ExceptionDto exceptionDto = new ExceptionDto(
+      MethodArgumentNotValidException e) {
+    ExceptionDto exceptionDto =
+        new ExceptionDto(
             "Method Argument Not Valid",
             e.getBindingResult().getFieldError().getDefaultMessage().replace("\n", " "),
-            OffsetDateTime.now()
-    );
+            OffsetDateTime.now());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDto);
   }
 }

@@ -8,8 +8,13 @@ import jakarta.validation.constraints.Size;
 public record UserCreateRequestDto(
     @NotBlank String name,
     @Email @NotBlank String email,
-    @NotNull @Size(min = 5, max = 50,
-        message = """
+    @NotNull
+        @Size(
+            min = 5,
+            max = 50,
+            message =
+                """
                 Password cannot be smaller than 5 symbols
                 and bigger than 50 symbols
-                """) String password) {}
+                """)
+        String password) {}

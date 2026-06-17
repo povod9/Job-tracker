@@ -5,6 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ActivityService {
-    Page<ActivityEventResponseDto> getAllActivityEvent(Pageable pageable);
-
+  Page<ActivityEventResponseDto> getAllActivityEvent(Pageable pageable);
 }

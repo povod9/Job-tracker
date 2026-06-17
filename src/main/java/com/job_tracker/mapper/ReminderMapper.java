@@ -12,7 +12,11 @@ public interface ReminderMapper {
   List<ReminderResponseDto> listRemindersToDto(List<ReminderEntity> reminderEntities);
 
   @Mapping(source = "application.id", target = "reminderApplicationResponseDto.applicationId")
-  @Mapping(source = "application.vacancy.company", target = "reminderApplicationResponseDto.company")
-  @Mapping(source = "application.vacancy.position", target = "reminderApplicationResponseDto.position")
+  @Mapping(
+      source = "application.vacancy.company",
+      target = "reminderApplicationResponseDto.company")
+  @Mapping(
+      source = "application.vacancy.position",
+      target = "reminderApplicationResponseDto.position")
   ReminderResponseDto reminderToDto(ReminderEntity reminderEntity);
 }

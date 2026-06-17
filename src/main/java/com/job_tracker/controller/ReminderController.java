@@ -4,8 +4,6 @@ import com.job_tracker.dto.ReminderCreateRequestDto;
 import com.job_tracker.dto.ReminderResponseDto;
 import com.job_tracker.service.ReminderService;
 import jakarta.validation.Valid;
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,11 +33,10 @@ public class ReminderController {
 
   @GetMapping("/me/reminders")
   public ResponseEntity<Page<ReminderResponseDto>> getMyReminder(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "20") int size,
-          @RequestParam(defaultValue = "id") String sortBy
-  ) {
-    Pageable pageable = PageRequest.of(page,size, Sort.by(sortBy));
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size,
+      @RequestParam(defaultValue = "id") String sortBy) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
     Page<ReminderResponseDto> reminderResponseDto = reminderService.getMyReminder(pageable);
     return ResponseEntity.ok(reminderResponseDto);
   }

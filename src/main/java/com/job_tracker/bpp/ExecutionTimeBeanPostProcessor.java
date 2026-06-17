@@ -38,7 +38,8 @@ public class ExecutionTimeBeanPostProcessor implements BeanPostProcessor {
       if (beanInterface.length > 0) {
         ExecutionTimeInvocationHandler invocationHandler =
             new ExecutionTimeInvocationHandler(bean, mapAnnotation);
-        return Proxy.newProxyInstance(targetClass.getClassLoader(), beanInterface, invocationHandler);
+        return Proxy.newProxyInstance(
+            targetClass.getClassLoader(), beanInterface, invocationHandler);
       } else {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(targetClass);

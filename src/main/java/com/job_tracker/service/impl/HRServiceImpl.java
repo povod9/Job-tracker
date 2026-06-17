@@ -17,28 +17,28 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class HRServiceImpl implements HRService {
 
-    private final UserRepository repository;
-    private final UserMapper mapper;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository repository;
+  private final UserMapper mapper;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    @Transactional
-    public UserResponseDto createHR(UserCreateRequestDto userCreateRequestDto) {
-        if (repository.existsByEmail(userCreateRequestDto.email())){
-            throw new IllegalArgumentException("Email already exists: " + userCreateRequestDto.email());
-        }
-
-        UserEntity createdUserEntity = new UserEntity(
-                null,
-                userCreateRequestDto.name(),
-                userCreateRequestDto.email(),
-                passwordEncoder.encode(userCreateRequestDto.password()),
-                Role.HR,
-                null,
-                null
-        );
-        UserEntity savedUser = repository.save(createdUserEntity);
-        return mapper.userToDto(savedUser);
+  @Override
+  @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+  @Transactional
+  public UserResponseDto createHR(UserCreateRequestDto userCreateRequestDto) {
+    if (repository.existsByEmail(userCreateRequestDto.email())) {
+      throw new IllegalArgumentException("Email already exists: " + userCreateRequestDto.email());
     }
+
+    UserEntity createdUserEntity =
+        new UserEntity(
+            null,
+            userCreateRequestDto.name(),
+            userCreateRequestDto.email(),
+            passwordEncoder.encode(userCreateRequestDto.password()),
+            Role.HR,
+            null,
+            null);
+    UserEntity savedUser = repository.save(createdUserEntity);
+    return mapper.userToDto(savedUser);
+  }
 }

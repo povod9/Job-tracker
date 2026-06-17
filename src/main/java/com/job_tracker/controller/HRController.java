@@ -8,22 +8,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/hr")
 public class HRController {
 
-    private final HRService service;
+  private final HRService service;
 
-    public HRController(HRService service) {
-        this.service = service;
-    }
+  public HRController(HRService service) {
+    this.service = service;
+  }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> createHR(
-            @RequestBody @Valid UserCreateRequestDto userCreateRequestDto){
-        UserResponseDto userResponseDto = service.createHR(userCreateRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
-    }
-
+  @PostMapping("/register")
+  public ResponseEntity<UserResponseDto> createHR(
+      @RequestBody @Valid UserCreateRequestDto userCreateRequestDto) {
+    UserResponseDto userResponseDto = service.createHR(userCreateRequestDto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
+  }
 }

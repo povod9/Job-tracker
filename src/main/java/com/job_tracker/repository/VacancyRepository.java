@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VacancyRepository extends JpaRepository<VacancyEntity, Long> {
-    Page<VacancyEntity> findAllByUserIdAndStatus(Long id, VacancyStatus status, Pageable pageable);
-    Page<VacancyEntity> findAllByUserIdAndStatusNot(Long id, VacancyStatus status, Pageable pageable);
+  Page<VacancyEntity> findAllByUserIdAndStatus(Long id, VacancyStatus status, Pageable pageable);
 
+  Page<VacancyEntity> findAllByUserIdAndStatusNot(Long id, VacancyStatus status, Pageable pageable);
 }

@@ -15,15 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ActivityServiceImpl implements ActivityService {
 
-    private final ActivityRepository activityRepository;
-    private final ActivityMapper activityMapper;
+  private final ActivityRepository activityRepository;
+  private final ActivityMapper activityMapper;
 
-
-    @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional(readOnly = true)
-    public Page<ActivityEventResponseDto> getAllActivityEvent(Pageable pageable) {
-        return activityRepository.findAll(pageable)
-                .map(activityMapper::activityToDto);
-    }
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
+  public Page<ActivityEventResponseDto> getAllActivityEvent(Pageable pageable) {
+    return activityRepository.findAll(pageable).map(activityMapper::activityToDto);
+  }
 }

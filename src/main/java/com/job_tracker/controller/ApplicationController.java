@@ -5,7 +5,6 @@ import com.job_tracker.dto.ApplicationResponseDto;
 import com.job_tracker.enums.ApplicationStatus;
 import com.job_tracker.service.ApplicationService;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,12 +25,12 @@ public class ApplicationController {
 
   @GetMapping("/me/applications")
   public ResponseEntity<Page<ApplicationResponseDto>> getMyApplication(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "20") int size,
-          @RequestParam(defaultValue = "id") String sortBy
-  ) {
-    Pageable pageable = PageRequest.of(page,size, Sort.by(sortBy));
-    Page<ApplicationResponseDto> applicationResponseDto = applicationService.getMyApplication(pageable);
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size,
+      @RequestParam(defaultValue = "id") String sortBy) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+    Page<ApplicationResponseDto> applicationResponseDto =
+        applicationService.getMyApplication(pageable);
     return ResponseEntity.ok(applicationResponseDto);
   }
 
@@ -61,13 +60,13 @@ public class ApplicationController {
 
   @GetMapping("/applications")
   public ResponseEntity<Page<ApplicationResponseDto>> getDeletedApplication(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "20") int size,
-          @RequestParam(defaultValue = "id") String sortBy
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size,
+      @RequestParam(defaultValue = "id") String sortBy) {
 
-  ) {
-    Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
-    Page<ApplicationResponseDto> applicationResponseDtoList = applicationService.getDeletedApplication(pageable);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+    Page<ApplicationResponseDto> applicationResponseDtoList =
+        applicationService.getDeletedApplication(pageable);
     return ResponseEntity.ok(applicationResponseDtoList);
   }
 }

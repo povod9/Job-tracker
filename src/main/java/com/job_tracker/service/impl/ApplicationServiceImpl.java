@@ -44,21 +44,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
     securityContextService.validateOwnershipOrThrow(principal.id());
 
-    VacancyEntity vacancyEntity = vacancyRepository.findById(application.vacancyId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find vacancy by id: "
-                            + application.vacancyId()));
+    VacancyEntity vacancyEntity =
+        vacancyRepository
+            .findById(application.vacancyId())
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(
+                        "Cannot find vacancy by id: " + application.vacancyId()));
 
     UserEntity userProxy = userRepository.getReferenceById(principal.id());
 
     ApplicationEntity createdApplicationEntity =
         new ApplicationEntity(
-            null,
-            userProxy,
-            vacancyEntity,
-            ApplicationStatus.DRAFT,
-            null,
-            null,
-            null);
+            null, userProxy, vacancyEntity, ApplicationStatus.DRAFT, null, null, null);
     ApplicationEntity saved = applicationRepository.save(createdApplicationEntity);
     return applicationMapper.applicationToDto(saved);
   }
@@ -68,8 +66,9 @@ public class ApplicationServiceImpl implements ApplicationService {
   @Transactional(readOnly = true)
   public Page<ApplicationResponseDto> getMyApplication(Pageable pageable) {
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-    return applicationRepository.findAllByUserId(principal.id(), pageable)
-            .map(applicationMapper::applicationToDto);
+    return applicationRepository
+        .findAllByUserId(principal.id(), pageable)
+        .map(applicationMapper::applicationToDto);
   }
 
   @Override
@@ -87,7 +86,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     UserEntity userEntity =
         userRepository
             .findById(principal.id())
-            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
+            .orElseThrow(
+                () -> new EntityNotFoundException("Cannot find user by id= " + principal.id()));
 
     applicationEntity.setApplicationStatus(ApplicationStatus.DELETED);
 
@@ -104,8 +104,7 @@ public class ApplicationServiceImpl implements ApplicationService {
   @Override
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
   @Transactional
-  public ApplicationResponseDto updateMyApplicationStatusById(
-      Long id, ApplicationStatus status) {
+  public ApplicationResponseDto updateMyApplicationStatusById(Long id, ApplicationStatus status) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
     securityContextService.validateOwnershipOrThrow(principal.id());
@@ -140,7 +139,6 @@ public class ApplicationServiceImpl implements ApplicationService {
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional(readOnly = true)
   public Page<ApplicationResponseDto> getDeletedApplication(Pageable pageable) {
-    return applicationRepository.findAll(pageable)
-            .map(applicationMapper::applicationToDto);
+    return applicationRepository.findAll(pageable).map(applicationMapper::applicationToDto);
   }
 }

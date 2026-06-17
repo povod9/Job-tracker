@@ -13,6 +13,7 @@ import com.job_tracker.security.JwtCore;
 import com.job_tracker.service.SecurityContextService;
 import com.job_tracker.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -105,8 +105,7 @@ public class UserServiceImpl implements UserService {
   @Transactional(readOnly = true)
   @TrackExecutionTime(unit = TimeUnit.MILLISECONDS, debug = false)
   public Page<UserResponseDto> getAllUsers(Pageable pageable) {
-    return userRepository.findAll(pageable)
-            .map(mapper::userToDto);
+    return userRepository.findAll(pageable).map(mapper::userToDto);
   }
 
   @Override
@@ -114,9 +113,9 @@ public class UserServiceImpl implements UserService {
   @Transactional(readOnly = true)
   public UserResponseDto getUserByEmail(String email) {
     UserEntity userEntity =
-            userRepository
-                    .findByEmail(email)
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
 
     return mapper.userToDto(userEntity);
   }
@@ -126,9 +125,9 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public UserResponseDto deleteUser(String email) {
     UserEntity userEntity =
-            userRepository
-                    .findByEmail(email)
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by email " + email));
 
     userRepository.delete(userEntity);
     return mapper.userToDto(userEntity);
@@ -139,18 +138,20 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public void userUpdatePassword(UserUpdatePasswordRequestDto passwordUpdate) {
     PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
-    UserEntity userEntity = userRepository.findById(principalDto.id())
-            .orElseThrow(() -> new EntityNotFoundException("Cannot find user by id: " + principalDto.id()));
+    UserEntity userEntity =
+        userRepository
+            .findById(principalDto.id())
+            .orElseThrow(
+                () -> new EntityNotFoundException("Cannot find user by id: " + principalDto.id()));
 
-    if(!passwordEncoder.matches(passwordUpdate.currentPassword(),userEntity.getPassword())){
-     throw new InvalidPasswordException("Wrong current password");
+    if (!passwordEncoder.matches(passwordUpdate.currentPassword(), userEntity.getPassword())) {
+      throw new InvalidPasswordException("Wrong current password");
     }
 
-    if(passwordEncoder.matches(passwordUpdate.newPassword(), userEntity.getPassword())){
+    if (passwordEncoder.matches(passwordUpdate.newPassword(), userEntity.getPassword())) {
       throw new SamePasswordException("The new password cannot be the same as the old");
     }
 
     userEntity.setPassword(passwordEncoder.encode(passwordUpdate.newPassword()));
-
   }
 }
