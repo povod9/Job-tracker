@@ -6,6 +6,7 @@ import com.job_tracker.dto.VacancyResponseDto;
 import com.job_tracker.dto.VacancyUpdateDto;
 import com.job_tracker.entity.UserEntity;
 import com.job_tracker.entity.VacancyEntity;
+import com.job_tracker.enums.VacancySource;
 import com.job_tracker.enums.VacancyStatus;
 import com.job_tracker.mapper.VacancyMapper;
 import com.job_tracker.repository.UserRepository;
@@ -30,17 +31,16 @@ public class VacancyServiceImpl implements VacancyService {
   private final SecurityContextService securityContextService;
 
   @Override
-  @PreAuthorize("hasRole('HR')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'USER')")
   @Transactional(readOnly = true)
-  public Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable) {
+  public Page<VacancyResponseDto> getAllVacancy(VacancyStatus status, Pageable pageable) {
     PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
     Page<VacancyEntity> vacancies;
     if (status != null) {
-      vacancies = vacancyRepository.findAllByUserIdAndStatus(principalDto.id(), status, pageable);
+      vacancies = vacancyRepository.findAllByStatus(status, pageable);
     } else {
       vacancies =
-          vacancyRepository.findAllByUserIdAndStatusNot(
-              principalDto.id(), VacancyStatus.DELETED, pageable);
+          vacancyRepository.findAllByStatusNot(VacancyStatus.DELETED, pageable);
     }
     return vacancies.map(mapper::entityToDto);
   }
@@ -51,17 +51,14 @@ public class VacancyServiceImpl implements VacancyService {
   public VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto) {
     PrincipalDto principalDto = securityContextService.getCurrentPrincipalOrThrow();
     UserEntity proxyEntity = userRepository.getReferenceById(principalDto.id());
-    VacancyEntity createdVacancyEntity =
-        new VacancyEntity(
-            null,
-            vacancyCreateRequestDto.company(),
-            vacancyCreateRequestDto.position(),
-            vacancyCreateRequestDto.description(),
-            proxyEntity,
-            VacancyStatus.ACTIVE,
-            null,
-            null,
-            null);
+    VacancyEntity createdVacancyEntity = VacancyEntity.builder()
+            .company(vacancyCreateRequestDto.company())
+            .position(vacancyCreateRequestDto.position())
+            .description(vacancyCreateRequestDto.description())
+            .user(proxyEntity)
+            .status(VacancyStatus.ACTIVE)
+            .source(VacancySource.MANUAL)
+            .build();
 
     vacancyRepository.save(createdVacancyEntity);
     return mapper.entityToDto(createdVacancyEntity);

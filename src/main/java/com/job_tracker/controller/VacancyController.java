@@ -25,13 +25,13 @@ public class VacancyController {
   }
 
   @GetMapping("/me/vacancies")
-  public ResponseEntity<Page<VacancyResponseDto>> getAllMyVacancy(
+  public ResponseEntity<Page<VacancyResponseDto>> getAllVacancy(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,
       @RequestParam(defaultValue = "id") String sortBy,
       @RequestParam(name = "status", required = false) VacancyStatus status) {
     Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-    Page<VacancyResponseDto> vacanciesResponseDto = service.getAllMyVacancy(status, pageable);
+    Page<VacancyResponseDto> vacanciesResponseDto = service.getAllVacancy(status, pageable);
     return ResponseEntity.ok(vacanciesResponseDto);
   }
 

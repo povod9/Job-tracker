@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface VacancyService {
-  Page<VacancyResponseDto> getAllMyVacancy(VacancyStatus status, Pageable pageable);
+  Page<VacancyResponseDto> getAllVacancy(VacancyStatus status, Pageable pageable);
 
   VacancyResponseDto createVacancy(VacancyCreateRequestDto vacancyCreateRequestDto);
 
