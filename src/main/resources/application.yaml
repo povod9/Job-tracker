@@ -29,7 +29,11 @@ spring:
           starttls:
             enable: true
 
-
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+
+adzuna:
+    api-id: ${API_ID}
+    api-key: ${API_KEY}
+    url: https://api.adzuna.com/v1/api
