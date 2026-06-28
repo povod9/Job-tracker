@@ -15,7 +15,7 @@ public interface VacancyRepository extends JpaRepository<VacancyEntity, Long> {
 
   @Query(
       """
-        SELECT v FROM VacancyEntity v
+        SELECT v.externalId FROM VacancyEntity v
         WHERE v.externalId in :incomingIds
 """)
   List<String> findAllExternalIdsByExternalIdIn(List<String> incomingIds);

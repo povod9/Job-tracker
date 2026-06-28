@@ -24,7 +24,7 @@ public class VacancyController {
     this.service = service;
   }
 
-  @GetMapping("/me/vacancies")
+  @GetMapping("/vacancies")
   public ResponseEntity<Page<VacancyResponseDto>> getAllVacancy(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size,

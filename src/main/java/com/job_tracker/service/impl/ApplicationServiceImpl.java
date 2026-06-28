@@ -42,7 +42,6 @@ public class ApplicationServiceImpl implements ApplicationService {
   public ApplicationResponseDto createApplication(ApplicationCreateRequestDto application) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-    securityContextService.validateOwnershipOrThrow(principal.id());
 
     VacancyEntity vacancyEntity =
         vacancyRepository
@@ -107,7 +106,6 @@ public class ApplicationServiceImpl implements ApplicationService {
   public ApplicationResponseDto updateMyApplicationStatusById(Long id, ApplicationStatus status) {
 
     PrincipalDto principal = securityContextService.getCurrentPrincipalOrThrow();
-    securityContextService.validateOwnershipOrThrow(principal.id());
 
     UserEntity userEntity =
         userRepository

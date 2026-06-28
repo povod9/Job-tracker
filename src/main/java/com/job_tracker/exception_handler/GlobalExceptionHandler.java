@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -58,7 +59,9 @@ public class GlobalExceptionHandler {
     ExceptionDto exceptionDto =
         new ExceptionDto(
             "Method Argument Not Valid",
-            e.getBindingResult().getFieldError().getDefaultMessage().replace("\n", " "),
+            e.getBindingResult().getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .findFirst().orElse("Validate error"),
             OffsetDateTime.now());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDto);
   }
