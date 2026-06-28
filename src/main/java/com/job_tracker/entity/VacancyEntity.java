@@ -5,9 +5,13 @@ import com.job_tracker.enums.VacancyStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
+
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "vacancies")
@@ -21,7 +25,7 @@ public class VacancyEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "external_id")
+  @Column(name = "external_id", unique = true)
   private String externalId;
 
   @Column(nullable = false)
@@ -32,6 +36,10 @@ public class VacancyEntity {
 
   @Column(nullable = false)
   private String description;
+
+  @Column
+  @JdbcTypeCode(SqlTypes.ARRAY)
+  private List<String> location;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = true)

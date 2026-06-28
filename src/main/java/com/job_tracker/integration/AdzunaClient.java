@@ -21,15 +21,16 @@ public class AdzunaClient {
         this.apiKey = apiKey;
     }
 
-    public AdzunaResponse vacancyList(){
+    public AdzunaResponse vacancyList(int page){
         return client.get()
                 .uri(u -> u
-                        .path("/jobs/pl/search/1")
+                        .path("/jobs/pl/search/{page}")
                         .queryParam("app_id", apiId)
                         .queryParam("app_key", apiKey)
+                        .queryParam("results_per_page", 10)
                         .queryParam("what", "java")
                         .queryParam("content-type", "application/json")
-                        .build())
+                        .build(page))
                 .retrieve()
                 .body(AdzunaResponse.class);
     }

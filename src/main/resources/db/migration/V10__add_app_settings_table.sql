@@ -1,5 +1,5 @@
 create table if not exists app_settings(
-    app_key varchar(100),
+    app_key varchar(100) primary key,
     app_value varchar(255) not null
 );
 

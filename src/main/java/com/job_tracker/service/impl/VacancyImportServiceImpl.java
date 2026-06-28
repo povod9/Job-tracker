@@ -25,25 +25,54 @@ public class VacancyImportServiceImpl implements VacancyImportService {
     @Transactional
     public void saveNewVacancies(AdzunaResponse adzunaResponse){
 
-        List<String> incomingIds = adzunaResponse.adzunaJobDtoList().stream()
+        List<AdzunaResponse.AdzunaJobDto> filteredDtos = adzunaResponse.adzunaJobDtoList().stream()
+                .filter(job -> {
+
+                    String title = job.position().toLowerCase();
+
+                    boolean isSenior = title.contains("senior")
+                            || title.contains("lead")
+                            || title.contains("principal")
+                            || title.contains("architect");
+
+                    boolean requiredHighExperience = title.contains("3+")
+                            || title.contains("mid")
+                            || title.contains("regular")
+                            || title.contains("experience");
+
+                    return !isSenior && !requiredHighExperience;
+                })
+                .toList();
+        log.info("Adzuna returned {}, jobs after filter", filteredDtos.size());
+
+        List<String> incomingIds = filteredDtos.stream()
                 .map(AdzunaResponse.AdzunaJobDto::externalId)
                 .toList();
 
+        if(filteredDtos.isEmpty()){
+            return;
+        }
+
         List<String> existingIds = repository.findAllExternalIdsByExternalIdIn(incomingIds);
 
-        List<VacancyEntity> vacancyEntities = adzunaResponse.adzunaJobDtoList().stream()
+        List<VacancyEntity> vacancyEntities = filteredDtos.stream()
                 .filter(adzunaJob -> !existingIds.contains(adzunaJob.externalId()))
-                .map(adzunaJob -> VacancyEntity.builder()
+                .map(adzunaJob -> {
+
+                    return VacancyEntity.builder()
                         .externalId(adzunaJob.externalId())
                         .position(adzunaJob.position())
                         .company(adzunaJob.company().displayName())
                         .description(adzunaJob.description())
+                        .location(adzunaJob.location().area())
                         .salaryMax(adzunaJob.salaryMax())
                         .salaryMin(adzunaJob.salaryMin())
                         .redirectURL(adzunaJob.redirectUrl())
                         .status(VacancyStatus.ACTIVE)
                         .source(VacancySource.ADZUNA)
-                        .build())
+                        .build();
+
+                })
                 .toList();
         log.info("Successfully imported and saved {} new vacancies from Adzuna", vacancyEntities.size());
         repository.saveAll(vacancyEntities);
