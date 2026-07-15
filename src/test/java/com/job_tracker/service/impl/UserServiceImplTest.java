@@ -1,4 +1,4 @@
-package com.job_tracker.service;
+package com.job_tracker.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -8,14 +8,9 @@ import com.job_tracker.create_exception.SamePasswordException;
 import com.job_tracker.dto.*;
 import com.job_tracker.entity.UserEntity;
 import com.job_tracker.enums.Role;
-import com.job_tracker.enums.VacancySource;
-import com.job_tracker.enums.VacancyStatus;
 import com.job_tracker.mapper.UserMapper;
 import com.job_tracker.repository.UserRepository;
 import com.job_tracker.security.JwtCore;
-import com.job_tracker.service.impl.SecurityContextServiceImpl;
-import com.job_tracker.service.impl.UserServiceImpl;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +25,7 @@ import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserServiceImplTest {
   @Mock SecurityContextServiceImpl securityContextService;
   @Mock UserRepository userRepository;
   @Mock JwtCore jwtCore;
@@ -258,6 +253,7 @@ class UserServiceTest {
     UserResponseDto userResponseDto4 = createUserResponseDto();
 
     Page<UserEntity> page = new PageImpl<>(List.of(userEntity1, userEntity2, userEntity3, userEntity4));
+    Page<UserResponseDto> expectedResponse = new PageImpl<>(List.of(userResponseDto1, userResponseDto2, userResponseDto3, userResponseDto4));
     Pageable pageable = PageRequest.of(0, 10);
     when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
     when(userMapper.userToDto(userEntity1)).thenReturn(userResponseDto1);
@@ -265,8 +261,13 @@ class UserServiceTest {
     when(userMapper.userToDto(userEntity3)).thenReturn(userResponseDto3);
     when(userMapper.userToDto(userEntity4)).thenReturn(userResponseDto4);
 
-    userService.getAllUsers(pageable);
+    var actual = userService.getAllUsers(pageable);
+
     verify(userRepository).findAll(any(Pageable.class));
+    verify(userMapper, times(4)).userToDto(any());
+    assertEquals(expectedResponse.getSize(), actual.getSize());
+    assertEquals(expectedResponse.getContent(), actual.getContent());
+
   }
 
   private UserUpdateDto createUserUpdateDto(){
