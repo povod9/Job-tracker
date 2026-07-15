@@ -77,7 +77,7 @@ public class AdzunaTest {
     }
 
     @Test
-    void shouldReturnVacanciesSuccessfully() {
+    void shouldStoreVacanciesSuccessfully() {
         adzunaSchedule.runImport();
 
         var result = jdbcTemplate.queryForMap("""
@@ -86,6 +86,7 @@ public class AdzunaTest {
                 FROM vacancies v
                 WHERE v.external_id = 'someId'
                 """);
+
         assertThat(result.get("position")).isEqualTo("somePosition");
         assertThat(result.get("company")).isEqualTo("someCompany");
         assertThat(result.get("description")).isEqualTo("someDescription");
