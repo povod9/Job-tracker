@@ -53,9 +53,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     UserEntity userProxy = userRepository.getReferenceById(principal.id());
 
-    ApplicationEntity createdApplicationEntity =
-        new ApplicationEntity(
-            null, userProxy, vacancyEntity, ApplicationStatus.DRAFT, null, null, null);
+    ApplicationEntity createdApplicationEntity = ApplicationEntity.builder()
+            .user(userProxy)
+            .vacancy(vacancyEntity)
+            .applicationStatus(ApplicationStatus.DRAFT)
+            .build();
+
     ApplicationEntity saved = applicationRepository.save(createdApplicationEntity);
     return applicationMapper.applicationToDto(saved);
   }
@@ -90,9 +93,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     applicationEntity.setApplicationStatus(ApplicationStatus.DELETED);
 
-    ActivityEventEntity activityEventEntity =
-        new ActivityEventEntity(
-            null, applicationEntity, ActivityEventType.STATUS_CHANGED, null, userEntity);
+    ActivityEventEntity activityEventEntity = ActivityEventEntity.builder()
+            .application(applicationEntity)
+            .type(ActivityEventType.STATUS_CHANGED)
+            .user(userEntity)
+            .build();
 
     applicationRepository.save(applicationEntity);
     activityRepository.save(activityEventEntity);
@@ -122,9 +127,11 @@ public class ApplicationServiceImpl implements ApplicationService {
           "Application status can't be transitioned to " + status);
     }
 
-    ActivityEventEntity activityEventEntity =
-        new ActivityEventEntity(
-            null, applicationEntity, ActivityEventType.STATUS_CHANGED, null, userEntity);
+    ActivityEventEntity activityEventEntity = ActivityEventEntity.builder()
+            .application(applicationEntity)
+            .type(ActivityEventType.STATUS_CHANGED)
+            .user(userEntity)
+            .build();
 
     applicationEntity.setApplicationStatus(status);
     applicationRepository.save(applicationEntity);

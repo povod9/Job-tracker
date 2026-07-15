@@ -67,16 +67,13 @@ public class ReminderServiceImpl implements ReminderService {
                 () ->
                     new EntityNotFoundException("Cannot find application by id= " + applicationId));
 
-    ReminderEntity reminderEntity =
-        new ReminderEntity(
-            null,
-            userEntity,
-            applicationEntity,
-            reminder.dueAt(),
-            ReminderStatus.PENDING,
-            reminder.message(),
-            null,
-            null);
+    ReminderEntity reminderEntity = ReminderEntity.builder()
+            .user(userEntity)
+            .application(applicationEntity)
+            .dueAt(reminder.dueAt())
+            .status(ReminderStatus.PENDING)
+            .message(reminder.message())
+            .build();
 
     ReminderEntity savedReminder = reminderRepository.save(reminderEntity);
     return reminderMapper.reminderToDto(savedReminder);

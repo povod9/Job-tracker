@@ -30,15 +30,12 @@ public class AdminServiceImpl implements AdminService {
       throw new IllegalArgumentException("Email already exists " + user.email());
     }
 
-    UserEntity userEntity =
-        new UserEntity(
-            null,
-            user.name(),
-            user.email(),
-            passwordEncoder.encode(user.password()),
-            Role.ADMIN,
-            OffsetDateTime.now(),
-            OffsetDateTime.now());
+    UserEntity userEntity = UserEntity.builder()
+            .name(user.name())
+            .email(user.email())
+            .password(passwordEncoder.encode(user.password()))
+            .role(Role.ADMIN)
+            .build();
     userEntity = userRepository.save(userEntity);
 
     return userMapper.userToDto(userEntity);

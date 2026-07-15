@@ -3,10 +3,8 @@ package com.job_tracker.entity;
 import com.job_tracker.enums.ActivityEventType;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
@@ -15,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class ActivityEventEntity {
 
   @Id

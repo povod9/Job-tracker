@@ -20,9 +20,12 @@ public class EmailCreationServiceImpl implements EmailCreationService {
   @Transactional
   public void createEmailForReminder(ReminderEntity reminder) {
     try {
-      EmailEntity emailEntity =
-          new EmailEntity(
-              null, reminder.getUser(), reminder, EmailStatus.PENDING, null, null, 0, null);
+      EmailEntity emailEntity = EmailEntity.builder()
+              .user(reminder.getUser())
+              .reminder(reminder)
+              .status(EmailStatus.PENDING)
+              .build();
+
       emailRepository.save(emailEntity);
       log.debug(
           "Created email for reminder {} (user: {})",

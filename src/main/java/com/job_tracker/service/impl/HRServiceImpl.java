@@ -29,15 +29,13 @@ public class HRServiceImpl implements HRService {
       throw new IllegalArgumentException("Email already exists: " + userCreateRequestDto.email());
     }
 
-    UserEntity createdUserEntity =
-        new UserEntity(
-            null,
-            userCreateRequestDto.name(),
-            userCreateRequestDto.email(),
-            passwordEncoder.encode(userCreateRequestDto.password()),
-            Role.HR,
-            null,
-            null);
+    UserEntity createdUserEntity = UserEntity.builder()
+            .name(userCreateRequestDto.name())
+            .email(userCreateRequestDto.email())
+            .password(passwordEncoder.encode(userCreateRequestDto.password()))
+            .role(Role.HR)
+            .build();
+
     UserEntity savedUser = repository.save(createdUserEntity);
     return mapper.userToDto(savedUser);
   }

@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class UserEntity {
 
   @Id

@@ -26,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -247,7 +248,25 @@ class UserServiceTest {
 
   @Test
   void returnAllUsers(){
+    UserEntity userEntity1 = createUserEntity();
+    UserEntity userEntity2 = createUserEntity();
+    UserEntity userEntity3 = createUserEntity();
+    UserEntity userEntity4 = createUserEntity();
+    UserResponseDto userResponseDto1 = createUserResponseDto();
+    UserResponseDto userResponseDto2 = createUserResponseDto();
+    UserResponseDto userResponseDto3 = createUserResponseDto();
+    UserResponseDto userResponseDto4 = createUserResponseDto();
 
+    Page<UserEntity> page = new PageImpl<>(List.of(userEntity1, userEntity2, userEntity3, userEntity4));
+    Pageable pageable = PageRequest.of(0, 10);
+    when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
+    when(userMapper.userToDto(userEntity1)).thenReturn(userResponseDto1);
+    when(userMapper.userToDto(userEntity2)).thenReturn(userResponseDto2);
+    when(userMapper.userToDto(userEntity3)).thenReturn(userResponseDto3);
+    when(userMapper.userToDto(userEntity4)).thenReturn(userResponseDto4);
+
+    userService.getAllUsers(pageable);
+    verify(userRepository).findAll(any(Pageable.class));
   }
 
   private UserUpdateDto createUserUpdateDto(){
@@ -275,20 +294,6 @@ class UserServiceTest {
         Role.USER,
         OffsetDateTime.now(),
         OffsetDateTime.now());
-  }
-
-  private VacancyResponseDto createVacancyResponseDto() {
-    return new VacancyResponseDto(
-            1L,
-            "Nike",
-            "Junior",
-            "Description",
-            VacancyStatus.ACTIVE,
-            VacancySource.MANUAL,
-            BigDecimal.valueOf(3000),
-            BigDecimal.valueOf(1000),
-            List.of("Warsaw"),
-            "http://someapi");
   }
 
   private UserResponseDto createUserResponseDto() {
