@@ -55,9 +55,12 @@ public class VacancyServiceImpl implements VacancyService {
             .company(vacancyCreateRequestDto.company())
             .position(vacancyCreateRequestDto.position())
             .description(vacancyCreateRequestDto.description())
+            .location(vacancyCreateRequestDto.location())
             .user(proxyEntity)
             .status(VacancyStatus.ACTIVE)
             .source(VacancySource.MANUAL)
+            .salaryMax(vacancyCreateRequestDto.salaryMax())
+            .salaryMin(vacancyCreateRequestDto.salaryMin())
             .build();
 
     vacancyRepository.save(createdVacancyEntity);
