@@ -13,8 +13,8 @@ import com.job_tracker.repository.ApplicationRepository;
 import com.job_tracker.repository.UserRepository;
 import com.job_tracker.repository.VacancyRepository;
 import com.job_tracker.service.SecurityContextService;
+import com.job_tracker.support.ObjectMotherCreator;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.action.internal.EntityActionVetoException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,12 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -54,14 +50,16 @@ class ApplicationServiceImplTest {
     @InjectMocks
     ApplicationServiceImpl service;
 
+    ObjectMotherCreator objectMotherCreator = new ObjectMotherCreator();
+
     @Test
     void createApplicationSuccessfully(){
-        PrincipalDto principalDto = createPrincipal();
-        UserEntity userEntity = createUserEntity();
-        VacancyEntity vacancyEntity = createVacancyEntity();
-        ApplicationCreateRequestDto appRequest = createApplicationCreateRequest();
-        ApplicationEntity applicationEntity = createApplicationEntity();
-        ApplicationResponseDto appResponse = createApplicationResponse();
+        PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+        UserEntity userEntity = objectMotherCreator.createUserEntity();
+        VacancyEntity vacancyEntity = objectMotherCreator.createVacancyEntityWithStatusActive();
+        ApplicationCreateRequestDto appRequest = objectMotherCreator.createApplicationCreateRequest();
+        ApplicationEntity applicationEntity = objectMotherCreator.createApplicationEntity();
+        ApplicationResponseDto appResponse = objectMotherCreator.createApplicationResponse();
 
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         when(userRepository.getReferenceById(principalDto.id())).thenReturn(userEntity);
@@ -91,8 +89,8 @@ class ApplicationServiceImplTest {
 
     @Test
     void doNotCreateIfVacancyIsNotExists(){
-        ApplicationCreateRequestDto appRequest = createApplicationCreateRequest();
-        PrincipalDto principalDto = createPrincipal();
+        ApplicationCreateRequestDto appRequest = objectMotherCreator.createApplicationCreateRequest();
+        PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         when(vacancyRepository.findById(appRequest.vacancyId())).thenReturn(Optional.empty());
 
@@ -106,11 +104,11 @@ class ApplicationServiceImplTest {
 
     @Test
     void returnUsersApplications(){
-        PrincipalDto principalDto = createPrincipal();
-        ApplicationEntity applicationEntity1 = createApplicationEntity();
-        ApplicationEntity applicationEntity2 = createApplicationEntity();
-        ApplicationResponseDto applicationResponseDto1 = createApplicationResponse();
-        ApplicationResponseDto applicationResponseDto2 = createApplicationResponse();
+        PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+        ApplicationEntity applicationEntity1 = objectMotherCreator.createApplicationEntity();
+        ApplicationEntity applicationEntity2 = objectMotherCreator.createApplicationEntity();
+        ApplicationResponseDto applicationResponseDto1 = objectMotherCreator.createApplicationResponse();
+        ApplicationResponseDto applicationResponseDto2 = objectMotherCreator.createApplicationResponse();
 
         Page<ApplicationEntity> appList = new PageImpl<>(List.of(applicationEntity1, applicationEntity2));
         Page<ApplicationResponseDto> expectedResponse = new PageImpl<>(List.of(applicationResponseDto1, applicationResponseDto2));
@@ -146,120 +144,32 @@ class ApplicationServiceImplTest {
 
     @Test
     void deleteApplicationSuccessfully(){
-        PrincipalDto principalDto = createPrincipal();
-        UserEntity userEntity = createUserEntity();
-        VacancyEntity vacancyEntity = createVacancyEntity();
-        ApplicationCreateRequestDto appRequest = createApplicationCreateRequest();
-        ApplicationEntity applicationEntity = createApplicationEntity();
-        ApplicationResponseDto appResponse = createApplicationResponse();
-        ActivityEventEntity activityEventEntity = createActivityEventEntity();
+        PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+        UserEntity userEntity = objectMotherCreator.createUserEntity();
+        VacancyEntity vacancyEntity = objectMotherCreator.createVacancyEntityWithStatusActive();
+        ApplicationCreateRequestDto appRequest = objectMotherCreator.createApplicationCreateRequest();
+        ApplicationEntity applicationEntity = objectMotherCreator.createApplicationEntity();
+        ApplicationResponseDto appResponse = objectMotherCreator.createApplicationResponse();
+        ActivityEventEntity activityEventEntity = objectMotherCreator.createActivityEventEntity();
 
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         when(applicationRepository.findById(1L)).thenReturn(Optional.of(applicationEntity));
+        when(applicationRepository.save(any(ApplicationEntity.class))).thenReturn(applicationEntity);
         when(userRepository.findById(principalDto.id())).thenReturn(Optional.of(userEntity));
         when(activityRepository.save(any(ActivityEventEntity.class))).thenReturn(activityEventEntity);
+        when(applicationMapper.applicationToDto(applicationEntity)).thenReturn(appResponse);
 
         var actual = service.deleteMyApplicationById(1L);
 
         verify(securityContextService).getCurrentPrincipalOrThrow();
-        verify(applicationRepository).save(any());
-        verify(userRepository).save(any());
+        verify(applicationRepository).findById(anyLong());
+        verify(applicationRepository).save(any(ApplicationEntity.class));
+        verify(userRepository).findById(anyLong());
         verify(activityRepository).save(any());
+        verify(applicationMapper).applicationToDto(any(ApplicationEntity.class));
 
         assertEquals(appResponse.applicationStatus(), actual.applicationStatus());
         assertEquals(appResponse.vacancyDto(), actual.vacancyDto());
         assertEquals(appResponse.id(), actual.id());
-    }
-
-    private ActivityEventEntity createActivityEventEntity(){
-        return new ActivityEventEntity(
-                1L,
-                createApplicationEntity(),
-                ActivityEventType.STATUS_CHANGED,
-                OffsetDateTime.now(),
-                createUserEntity()
-        );
-    }
-
-    private UserEntity createUserEntity() {
-        return new UserEntity(
-                1L,
-                "Jahn",
-                "jahn@gmail.com",
-                "SecretPassword",
-                Role.USER,
-                OffsetDateTime.now(),
-                OffsetDateTime.now());
-    }
-
-    private PrincipalDto createPrincipal(){
-        return new PrincipalDto("jahn@gmail.com", "USER", 1L);
-    }
-
-    private VacancyEntity createVacancyEntity(){
-        return new VacancyEntity(
-                1L,
-                "123",
-                "Nike",
-                "Cashier",
-                "description",
-                List.of("Krakow"),
-                createUserEntity(),
-                VacancyStatus.ACTIVE,
-                VacancySource.MANUAL,
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-                1L,
-                BigDecimal.valueOf(5000.00),
-                BigDecimal.valueOf(2000.00),
-                "URL"
-        );
-    }
-
-    private ApplicationCreateRequestDto createApplicationCreateRequest() {
-        return new ApplicationCreateRequestDto(1L);
-    }
-
-    private ApplicationEntity createApplicationEntity(){
-        return new ApplicationEntity(
-                1L,
-                createUserEntity(),
-                createVacancyEntity(),
-                ApplicationStatus.DRAFT,
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-                1L
-        );
-    }
-
-    private UserResponseDto createUserResponseDto() {
-        return new UserResponseDto("Jahn", "jahn@gmail.com", Role.USER);
-    }
-
-    private ApplicationResponseDto createApplicationResponse(){
-        return new ApplicationResponseDto(
-                1L,
-                createUserResponseDto(),
-                createVacancyResponseDto(),
-                createApplicationEntity().getApplicationStatus(),
-                createApplicationEntity().getCreatedAt(),
-                createApplicationEntity().getUpdatedAt(),
-                createApplicationEntity().getVersion()
-        );
-    }
-
-    private VacancyResponseDto createVacancyResponseDto(){
-        return new VacancyResponseDto(
-                1L,
-                createVacancyEntity().getCompany(),
-                createVacancyEntity().getPosition(),
-                createVacancyEntity().getDescription(),
-                createVacancyEntity().getStatus(),
-                createVacancyEntity().getSource(),
-                createVacancyEntity().getSalaryMax(),
-                createVacancyEntity().getSalaryMin(),
-                createVacancyEntity().getLocation(),
-                createVacancyEntity().getRedirectURL()
-        );
     }
 }

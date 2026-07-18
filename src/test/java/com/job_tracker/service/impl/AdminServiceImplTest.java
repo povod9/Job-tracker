@@ -3,9 +3,9 @@ package com.job_tracker.service.impl;
 import com.job_tracker.dto.UserCreateRequestDto;
 import com.job_tracker.dto.UserResponseDto;
 import com.job_tracker.entity.UserEntity;
-import com.job_tracker.enums.Role;
 import com.job_tracker.mapper.UserMapper;
 import com.job_tracker.repository.UserRepository;
+import com.job_tracker.support.ObjectMotherCreator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import java.time.OffsetDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,12 +26,13 @@ class AdminServiceImplTest {
     @Mock UserMapper mapper;
     @Mock PasswordEncoder passwordEncoder;
     @InjectMocks AdminServiceImpl adminService;
+    ObjectMotherCreator objectMotherCreator = new ObjectMotherCreator();
 
     @Test
     void createAdminSuccessfully(){
-        UserCreateRequestDto userCreateRequestDto = createUserRequestDto();
-        UserEntity userEntity = createUserEntity();
-        UserResponseDto userResponseDto = createUserResponseDto();
+        UserCreateRequestDto userCreateRequestDto = objectMotherCreator.createUserRequestDto();
+        UserEntity userEntity = objectMotherCreator.createAdminEntity();
+        UserResponseDto userResponseDto = objectMotherCreator.createAdminResponseDto();
 
         when(repository.existsByEmail(userCreateRequestDto.email())).thenReturn(false);
         when(repository.save(any(UserEntity.class))).thenReturn(userEntity);
@@ -55,7 +55,7 @@ class AdminServiceImplTest {
 
     @Test
     void doNotCreateAdminIfEmailExists(){
-        UserCreateRequestDto userCreateRequestDto = createUserRequestDto();
+        UserCreateRequestDto userCreateRequestDto = objectMotherCreator.createUserRequestDto();
 
         when(repository.existsByEmail(userCreateRequestDto.email())).thenReturn(true);
 
@@ -66,24 +66,5 @@ class AdminServiceImplTest {
         verify(mapper, never()).userToDto(any(UserEntity.class));
         verify(passwordEncoder, never()).encode(anyString());
         assertEquals("Email already exists " + userCreateRequestDto.email(), actualErrorMessage.getMessage());
-    }
-
-    private UserCreateRequestDto createUserRequestDto(){
-        return new UserCreateRequestDto("Jahn", "jahn@gmail.com", "SecretPassword");
-    }
-
-    private UserEntity createUserEntity() {
-        return new UserEntity(
-                1L,
-                "Jahn",
-                "jahn@gmail.com",
-                "SecretPassword",
-                Role.ADMIN,
-                OffsetDateTime.now(),
-                OffsetDateTime.now());
-    }
-
-    private UserResponseDto createUserResponseDto() {
-        return new UserResponseDto("Jahn", "jahn@gmail.com", Role.ADMIN);
     }
 }

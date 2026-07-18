@@ -7,13 +7,12 @@ import com.job_tracker.create_exception.InvalidPasswordException;
 import com.job_tracker.create_exception.SamePasswordException;
 import com.job_tracker.dto.*;
 import com.job_tracker.entity.UserEntity;
-import com.job_tracker.enums.Role;
 import com.job_tracker.mapper.UserMapper;
 import com.job_tracker.repository.UserRepository;
 import com.job_tracker.security.JwtCore;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import com.job_tracker.support.ObjectMotherCreator;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,12 +31,13 @@ class UserServiceImplTest {
   @Mock UserMapper userMapper;
   @Mock PasswordEncoder passwordEncoder;
   @InjectMocks UserServiceImpl userService;
+  ObjectMotherCreator objectMotherCreator = new ObjectMotherCreator();
 
   @Test
   void successfullyCreateUser(){
-    UserCreateRequestDto userCreateRequestDto = createUserRequestDto();
-    UserResponseDto userResponseDto = createUserResponseDto();
-    UserEntity userEntity = createUserEntity();
+    UserCreateRequestDto userCreateRequestDto = objectMotherCreator.createUserRequestDto();
+    UserResponseDto userResponseDto = objectMotherCreator.createUserResponseDto();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
 
     when(userRepository.existsByEmail(userCreateRequestDto.email())).thenReturn(false);
     when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
@@ -60,7 +60,7 @@ class UserServiceImplTest {
 
   @Test
   void doNotCreateUserIfEmailExists(){
-    UserCreateRequestDto userCreateRequestDto = createUserRequestDto();
+    UserCreateRequestDto userCreateRequestDto = objectMotherCreator.createUserRequestDto();
 
     when(userRepository.existsByEmail(userCreateRequestDto.email())).thenReturn(true);
 
@@ -75,10 +75,10 @@ class UserServiceImplTest {
 
   @Test
   void updateUserSuccessfully(){
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
-    UserUpdateDto userUpdateDto = createUserUpdateDto();
-    UserResponseDto userResponseDto = createUserResponseDto();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
+    UserUpdateDto userUpdateDto = objectMotherCreator.createUserUpdateDto();
+    UserResponseDto userResponseDto = objectMotherCreator.createUserResponseDto();
 
     when(userRepository.findById(principalDto.id())).thenReturn(Optional.of(userEntity));
     when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
@@ -99,8 +99,8 @@ class UserServiceImplTest {
 
   @Test
   void doNotUpdateUserIfEmailTheSame(){
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
     UserUpdateDto userUpdateDto = new UserUpdateDto("Jahn","jahn@gmail.com");
     when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
     when(userRepository.findById(principalDto.id())).thenReturn(Optional.of(userEntity));
@@ -116,8 +116,8 @@ class UserServiceImplTest {
 
   @Test
   void doNotUpdateUserIfEmailExists(){
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
     UserUpdateDto userUpdateDto = new UserUpdateDto("Jahn","jahn1@gmail.com");
     when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
     when(userRepository.findById(principalDto.id())).thenReturn(Optional.of(userEntity));
@@ -134,9 +134,9 @@ class UserServiceImplTest {
 
   @Test
   void doNotUpdatePasswordIfPasswordIsWrong(){
-    UserUpdatePasswordRequestDto userUpd = createUpdPassRequest();
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
+    UserUpdatePasswordRequestDto userUpd = objectMotherCreator.createUpdPassRequest();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
 
     when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
     when(userRepository.findById(principalDto.id())).thenReturn(Optional.of(userEntity));
@@ -153,8 +153,8 @@ class UserServiceImplTest {
     UserUpdatePasswordRequestDto userUpd = new UserUpdatePasswordRequestDto(
             "SecretPassword",
             "SecretPassword");
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
 
 
     when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
@@ -172,9 +172,9 @@ class UserServiceImplTest {
 
   @Test
   void getUserByEmail() {
-    UserEntity userEntity = createUserEntity();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
 
-    UserResponseDto expectedDto = createUserResponseDto();
+    UserResponseDto expectedDto = objectMotherCreator.createUserResponseDto();
 
     when(userRepository.findByEmail(userEntity.getEmail())).thenReturn(Optional.of(userEntity));
     when(userMapper.userToDto(userEntity)).thenReturn(expectedDto);
@@ -196,9 +196,9 @@ class UserServiceImplTest {
 
   @Test
   void deleteUser() {
-    UserEntity userEntity = createUserEntity();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
 
-    UserResponseDto expectedDto = createUserResponseDto();
+    UserResponseDto expectedDto = objectMotherCreator.createUserResponseDto();
 
     when(userRepository.findByEmail(userEntity.getEmail())).thenReturn(Optional.of(userEntity));
     when(userMapper.userToDto(userEntity)).thenReturn(expectedDto);
@@ -211,10 +211,10 @@ class UserServiceImplTest {
 
   @Test
   void successfullyLogin(){
-    LoginResponseDto loginResponseDto = createLoginResponse();
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
-    RequestLoginDto loginRequestDto = createLoginRequest();
+    LoginResponseDto loginResponseDto = objectMotherCreator.createLoginResponse();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
+    RequestLoginDto loginRequestDto = objectMotherCreator.createLoginRequest();
 
     when(userRepository.findByEmail(principalDto.email())).thenReturn(Optional.of(userEntity));
     when(passwordEncoder.matches(loginRequestDto.password(), userEntity.getPassword())).thenReturn(true);
@@ -227,9 +227,9 @@ class UserServiceImplTest {
 
   @Test
   void  invalidCredentialsWhenLogin(){
-    RequestLoginDto loginRequestDto = createLoginRequest();
-    PrincipalDto principalDto = createPrincipal();
-    UserEntity userEntity = createUserEntity();
+    RequestLoginDto loginRequestDto = objectMotherCreator.createLoginRequest();
+    PrincipalDto principalDto = objectMotherCreator.createUserPrincipal();
+    UserEntity userEntity = objectMotherCreator.createUserEntity();
 
     when(userRepository.findByEmail(principalDto.email())).thenReturn(Optional.of(userEntity));
     when(passwordEncoder.matches(loginRequestDto.password(), userEntity.getPassword())).thenReturn(false);
@@ -243,14 +243,14 @@ class UserServiceImplTest {
 
   @Test
   void returnAllUsers(){
-    UserEntity userEntity1 = createUserEntity();
-    UserEntity userEntity2 = createUserEntity();
-    UserEntity userEntity3 = createUserEntity();
-    UserEntity userEntity4 = createUserEntity();
-    UserResponseDto userResponseDto1 = createUserResponseDto();
-    UserResponseDto userResponseDto2 = createUserResponseDto();
-    UserResponseDto userResponseDto3 = createUserResponseDto();
-    UserResponseDto userResponseDto4 = createUserResponseDto();
+    UserEntity userEntity1 = objectMotherCreator.createUserEntity();
+    UserEntity userEntity2 = objectMotherCreator.createUserEntity();
+    UserEntity userEntity3 = objectMotherCreator.createUserEntity();
+    UserEntity userEntity4 = objectMotherCreator.createUserEntity();
+    UserResponseDto userResponseDto1 = objectMotherCreator.createUserResponseDto();
+    UserResponseDto userResponseDto2 = objectMotherCreator.createUserResponseDto();
+    UserResponseDto userResponseDto3 = objectMotherCreator.createUserResponseDto();
+    UserResponseDto userResponseDto4 = objectMotherCreator.createUserResponseDto();
 
     Page<UserEntity> page = new PageImpl<>(List.of(userEntity1, userEntity2, userEntity3, userEntity4));
     Page<UserResponseDto> expectedResponse = new PageImpl<>(List.of(userResponseDto1, userResponseDto2, userResponseDto3, userResponseDto4));
@@ -269,44 +269,4 @@ class UserServiceImplTest {
     assertEquals(expectedResponse.getContent(), actual.getContent());
 
   }
-
-  private UserUpdateDto createUserUpdateDto(){
-    return new UserUpdateDto("Lisa", "lisa@user.com");
-  }
-
-  private RequestLoginDto createLoginRequest(){
-    return new RequestLoginDto("jahn@gmail.com", "SecretPassword");
-  }
-
-  private LoginResponseDto createLoginResponse(){
-    return new LoginResponseDto("token", "Bearer");
-  }
-
-  private UserUpdatePasswordRequestDto createUpdPassRequest(){
-    return new UserUpdatePasswordRequestDto("SecretPassword", "123");
-  }
-
-  private UserEntity createUserEntity() {
-    return new UserEntity(
-        1L,
-        "Jahn",
-        "jahn@gmail.com",
-        "SecretPassword",
-        Role.USER,
-        OffsetDateTime.now(),
-        OffsetDateTime.now());
-  }
-
-  private UserResponseDto createUserResponseDto() {
-    return new UserResponseDto("Jahn", "jahn@gmail.com", Role.USER);
-  }
-
-  private UserCreateRequestDto createUserRequestDto(){
-    return new UserCreateRequestDto("Jahn", "jahn@gmail.com", "SecretPassword");
-  }
-
-  private PrincipalDto createPrincipal(){
-    return new PrincipalDto("jahn@gmail.com", "USER", 1L);
-  }
-
 }

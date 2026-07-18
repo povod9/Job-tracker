@@ -1,16 +1,15 @@
 package com.job_tracker.service.impl;
 
-import com.job_tracker.create_exception.InvalidCredentialsException;
 import com.job_tracker.dto.*;
 import com.job_tracker.entity.UserEntity;
 import com.job_tracker.entity.VacancyEntity;
-import com.job_tracker.enums.Role;
 import com.job_tracker.enums.VacancySource;
 import com.job_tracker.enums.VacancyStatus;
 import com.job_tracker.mapper.VacancyMapper;
 import com.job_tracker.repository.UserRepository;
 import com.job_tracker.repository.VacancyRepository;
 import com.job_tracker.service.SecurityContextService;
+import com.job_tracker.support.ObjectMotherCreator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,8 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,14 +34,15 @@ class VacancyServiceImplTest {
     @Mock VacancyMapper mapper;
     @Mock SecurityContextService securityContextService;
     @InjectMocks VacancyServiceImpl service;
+    ObjectMotherCreator objectMotherCreator = new ObjectMotherCreator();
 
     @Test
     void createVacancySuccessfully(){
-        PrincipalDto principalDto = createPrincipal();
-        UserEntity userEntity = createUserEntity();
-        VacancyCreateRequestDto vacancyRequest = createVacancyRequestDto();
-        VacancyResponseDto vacancyResponse = createVacancyResponseDtoWithStatusActive();
-        VacancyEntity vacancyEntity = createVacancyEntityWithStatusActive();
+        PrincipalDto principalDto = objectMotherCreator.createHRPrincipal();
+        UserEntity userEntity = objectMotherCreator.createHREntity();
+        VacancyCreateRequestDto vacancyRequest = objectMotherCreator.createVacancyRequestDto();
+        VacancyResponseDto vacancyResponse = objectMotherCreator.createVacancyResponseDtoWithStatusActive();
+        VacancyEntity vacancyEntity = objectMotherCreator.createVacancyEntityWithStatusActive();
 
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         when(userRepository.getReferenceById(principalDto.id())).thenReturn(userEntity);
@@ -79,11 +77,11 @@ class VacancyServiceImplTest {
 
     @Test
     void listAllVacancyWithStatusActiveSuccessfully(){
-        VacancyEntity vacancyEntity1 = createVacancyEntityWithStatusActive();
-        VacancyEntity vacancyEntity2 = createVacancyEntityWithStatusActive();
-        VacancyResponseDto vacancyResponse1 = createVacancyResponseDtoWithStatusActive();
-        VacancyResponseDto vacancyResponse2 = createVacancyResponseDtoWithStatusActive();
-        PrincipalDto principalDto = createPrincipal();
+        VacancyEntity vacancyEntity1 = objectMotherCreator.createVacancyEntityWithStatusActive();
+        VacancyEntity vacancyEntity2 = objectMotherCreator.createVacancyEntityWithStatusActive();
+        VacancyResponseDto vacancyResponse1 = objectMotherCreator.createVacancyResponseDtoWithStatusActive();
+        VacancyResponseDto vacancyResponse2 = objectMotherCreator.createVacancyResponseDtoWithStatusActive();
+        PrincipalDto principalDto = objectMotherCreator.createHRPrincipal();
 
         Pageable pageable = PageRequest.of(0,10);
         Page<VacancyEntity> page = new PageImpl<>(List.of(vacancyEntity1,vacancyEntity2));
@@ -108,13 +106,13 @@ class VacancyServiceImplTest {
 
     @Test
     void listAllVacancyWithStatusDeletedSuccessfully(){
-        VacancyEntity vacancyEntity1 = createVacancyEntityWithStatusDeleted();
-        VacancyEntity vacancyEntity2 = createVacancyEntityWithStatusDeleted();
+        VacancyEntity vacancyEntity1 = objectMotherCreator.createVacancyEntityWithStatusDeleted();
+        VacancyEntity vacancyEntity2 = objectMotherCreator.createVacancyEntityWithStatusDeleted();
         VacancyStatus status = VacancyStatus.DELETED;
 
-        VacancyResponseDto vacancyResponse1 = createVacancyResponseDtoWithStatusDeleted();
-        VacancyResponseDto vacancyResponse2 = createVacancyResponseDtoWithStatusDeleted();
-        PrincipalDto principalDto = createPrincipal();
+        VacancyResponseDto vacancyResponse1 = objectMotherCreator.createVacancyResponseDtoWithStatusDeleted();
+        VacancyResponseDto vacancyResponse2 = objectMotherCreator.createVacancyResponseDtoWithStatusDeleted();
+        PrincipalDto principalDto = objectMotherCreator.createHRPrincipal();
 
         Pageable pageable = PageRequest.of(0,10);
         Page<VacancyEntity> page = new PageImpl<>(List.of(vacancyEntity1,vacancyEntity2));
@@ -138,9 +136,9 @@ class VacancyServiceImplTest {
 
     @Test
     void findVacancySuccessfullyById(){
-        PrincipalDto principalDto = createPrincipal();
-        VacancyEntity vacancyEntity = createVacancyEntityWithStatusActive();
-        VacancyResponseDto vacancyResponse = createVacancyResponseDtoWithStatusActive();
+        PrincipalDto principalDto = objectMotherCreator.createHRPrincipal();
+        VacancyEntity vacancyEntity = objectMotherCreator.createVacancyEntityWithStatusActive();
+        VacancyResponseDto vacancyResponse = objectMotherCreator.createVacancyResponseDtoWithStatusActive();
 
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         doNothing().when(securityContextService).validateOwnershipOrThrow(vacancyEntity.getUser().getId());
@@ -158,8 +156,8 @@ class VacancyServiceImplTest {
 
     @Test
     void deleteVacancySuccessfully(){
-        PrincipalDto principalDto = createPrincipal();
-        VacancyEntity vacancyEntity = createVacancyEntityWithStatusActive();
+        PrincipalDto principalDto = objectMotherCreator.createHRPrincipal();
+        VacancyEntity vacancyEntity = objectMotherCreator.createVacancyEntityWithStatusActive();
 
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         doNothing().when(securityContextService).validateOwnershipOrThrow(vacancyEntity.getUser().getId());
@@ -176,10 +174,10 @@ class VacancyServiceImplTest {
 
     @Test
     void updateVacancySuccessfully(){
-        VacancyUpdateDto vacancyUpdateDto = createVacancyUpdateDto();
-        VacancyEntity vacancyEntity = createVacancyEntityWithStatusActive();
-        PrincipalDto principalDto = createPrincipal();
-        VacancyResponseDto expectedResponse = updatedVacancyEntityResponse();
+        VacancyUpdateDto vacancyUpdateDto = objectMotherCreator.createVacancyUpdateDto();
+        VacancyEntity vacancyEntity = objectMotherCreator.createVacancyEntityWithStatusActive();
+        PrincipalDto principalDto = objectMotherCreator.createHRPrincipal();
+        VacancyResponseDto expectedResponse = objectMotherCreator.updatedVacancyEntityResponse();
 
         when(securityContextService.getCurrentPrincipalOrThrow()).thenReturn(principalDto);
         when(vacancyRepository.findById(1L)).thenReturn(Optional.of(vacancyEntity));
@@ -195,128 +193,4 @@ class VacancyServiceImplTest {
 
         assertSame(expectedResponse, actual);
     }
-
-
-    private VacancyUpdateDto createVacancyUpdateDto(){
-        return new VacancyUpdateDto(
-                "pBank",
-                "Manager",
-                "description"
-        );
-    }
-
-    private VacancyResponseDto updatedVacancyEntityResponse(){
-        return new VacancyResponseDto(
-                1L,
-                "pBank",
-                "Manager",
-                "description",
-                createVacancyEntityWithStatusActive().getStatus(),
-                createVacancyEntityWithStatusActive().getSource(),
-                createVacancyEntityWithStatusActive().getSalaryMax(),
-                createVacancyEntityWithStatusActive().getSalaryMin(),
-                createVacancyEntityWithStatusActive().getLocation(),
-                createVacancyEntityWithStatusActive().getRedirectURL()
-        );
-    }
-
-    private VacancyEntity createVacancyEntityWithStatusActive(){
-        return new VacancyEntity(
-                1L,
-                "123",
-                "Nike",
-                "Cashier",
-                "description",
-                List.of("Krakow"),
-                createUserEntity(),
-                VacancyStatus.ACTIVE,
-                VacancySource.MANUAL,
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-                1L,
-                BigDecimal.valueOf(5000.00),
-                BigDecimal.valueOf(2000.00),
-                "URL"
-        );
-    }
-
-
-
-    private VacancyResponseDto createVacancyResponseDtoWithStatusActive(){
-        return new VacancyResponseDto(
-                1L,
-                createVacancyEntityWithStatusActive().getCompany(),
-                createVacancyEntityWithStatusActive().getPosition(),
-                createVacancyEntityWithStatusActive().getDescription(),
-                createVacancyEntityWithStatusActive().getStatus(),
-                createVacancyEntityWithStatusActive().getSource(),
-                createVacancyEntityWithStatusActive().getSalaryMax(),
-                createVacancyEntityWithStatusActive().getSalaryMin(),
-                createVacancyEntityWithStatusActive().getLocation(),
-                createVacancyEntityWithStatusActive().getRedirectURL()
-        );
-    }
-
-    private VacancyResponseDto createVacancyResponseDtoWithStatusDeleted(){
-        return new VacancyResponseDto(
-                1L,
-                createVacancyEntityWithStatusDeleted().getCompany(),
-                createVacancyEntityWithStatusDeleted().getPosition(),
-                createVacancyEntityWithStatusDeleted().getDescription(),
-                createVacancyEntityWithStatusDeleted().getStatus(),
-                createVacancyEntityWithStatusDeleted().getSource(),
-                createVacancyEntityWithStatusDeleted().getSalaryMax(),
-                createVacancyEntityWithStatusDeleted().getSalaryMin(),
-                createVacancyEntityWithStatusDeleted().getLocation(),
-                createVacancyEntityWithStatusDeleted().getRedirectURL()
-        );
-    }
-
-    private VacancyEntity createVacancyEntityWithStatusDeleted(){
-        return new VacancyEntity(
-                1L,
-                "123",
-                "Nike",
-                "Cashier",
-                "description",
-                List.of("Krakow"),
-                createUserEntity(),
-                VacancyStatus.ACTIVE,
-                VacancySource.MANUAL,
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-                1L,
-                BigDecimal.valueOf(5000.00),
-                BigDecimal.valueOf(2000.00),
-                "URL"
-        );
-    }
-
-
-    private VacancyCreateRequestDto createVacancyRequestDto(){
-        return new VacancyCreateRequestDto(
-                createVacancyEntityWithStatusActive().getCompany(),
-                createVacancyEntityWithStatusActive().getPosition(),
-                createVacancyEntityWithStatusActive().getDescription(),
-                createVacancyEntityWithStatusActive().getSalaryMax(),
-                createVacancyEntityWithStatusActive().getSalaryMin(),
-                createVacancyEntityWithStatusActive().getLocation()
-        );
-    }
-
-    private UserEntity createUserEntity() {
-        return new UserEntity(
-                1L,
-                "Jahn",
-                "jahn@gmail.com",
-                "SecretPassword",
-                Role.HR,
-                OffsetDateTime.now(),
-                OffsetDateTime.now());
-    }
-
-    private PrincipalDto createPrincipal(){
-        return new PrincipalDto("jahn@gmail.com", "USER", 1L);
-    }
-
 }
