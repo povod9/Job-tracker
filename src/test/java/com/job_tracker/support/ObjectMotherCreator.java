@@ -184,7 +184,7 @@ public class ObjectMotherCreator {
                 "description",
                 List.of("Krakow"),
                 createUserEntity(),
-                VacancyStatus.ACTIVE,
+                VacancyStatus.DELETED,
                 VacancySource.MANUAL,
                 OffsetDateTime.parse("2024-01-01T00:00:00Z"),
                 OffsetDateTime.parse("2024-01-01T00:00:00Z"),
