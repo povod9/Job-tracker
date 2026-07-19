@@ -282,4 +282,16 @@ public class ObjectMotherCreator {
         );
     }
 
+    public EmailEntity createEmailEntity(){
+        return new EmailEntity(
+                1L,
+                createUserEntity(),
+                createReminder(),
+                EmailStatus.PENDING,
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                0,
+                ""
+        );
+    }
 }
