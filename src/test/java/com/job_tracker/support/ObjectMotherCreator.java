@@ -1,10 +1,7 @@
 package com.job_tracker.support;
 
 import com.job_tracker.dto.*;
-import com.job_tracker.entity.ActivityEventEntity;
-import com.job_tracker.entity.ApplicationEntity;
-import com.job_tracker.entity.UserEntity;
-import com.job_tracker.entity.VacancyEntity;
+import com.job_tracker.entity.*;
 import com.job_tracker.enums.*;
 
 import java.math.BigDecimal;
@@ -242,6 +239,46 @@ public class ObjectMotherCreator {
                 1L,
                 createApplicationResponse(),
                 OffsetDateTime.parse("2024-01-01T00:00:00Z")
+        );
+    }
+
+    public ReminderEntity createReminder(){
+        return new ReminderEntity(
+                1L,
+                createUserEntity(),
+                createApplicationEntity(),
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                ReminderStatus.PENDING,
+                "message",
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                OffsetDateTime.parse("2027-01-01T00:00:00Z")
+        );
+    }
+
+    public ReminderResponseDto createReminderResponse(){
+        return new ReminderResponseDto(
+                1L,
+                createReminderApplicationResponse(),
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                ReminderStatus.SENT,
+                "message",
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                OffsetDateTime.parse("2027-01-01T00:00:00Z")
+        );
+    }
+
+    public ReminderApplicationResponseDto createReminderApplicationResponse(){
+        return new ReminderApplicationResponseDto(
+                1L,
+                "Nike",
+                "Cashier"
+        );
+    }
+
+    public ReminderCreateRequestDto createReminderRequest(){
+        return new ReminderCreateRequestDto(
+                OffsetDateTime.parse("2027-01-01T00:00:00Z"),
+                "message"
         );
     }
 
