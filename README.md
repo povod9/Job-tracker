@@ -9,7 +9,7 @@ Job Tracker is a backend service that helps users manage their job search proces
 ## Tech Stack
 
 - **Framework**: Spring Boot 4.0.3
-- **Language**: Java 17
+- **Language**: Java 21
 - **Database**: PostgreSQL
 - **ORM**: Hibernate
 - **Authentication**: JWT
