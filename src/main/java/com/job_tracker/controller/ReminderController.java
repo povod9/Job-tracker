@@ -1,9 +1,11 @@
 package com.job_tracker.controller;
 
+import com.job_tracker.dto.PaginationParams;
 import com.job_tracker.dto.ReminderCreateRequestDto;
 import com.job_tracker.dto.ReminderResponseDto;
 import com.job_tracker.service.ReminderService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,13 +16,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/reminder")
+@RequiredArgsConstructor
 public class ReminderController {
 
   private final ReminderService reminderService;
-
-  public ReminderController(ReminderService reminderService) {
-    this.reminderService = reminderService;
-  }
 
   @PostMapping("/me/{id}")
   public ResponseEntity<ReminderResponseDto> createReminder(
@@ -33,10 +32,8 @@ public class ReminderController {
 
   @GetMapping("/me/reminders")
   public ResponseEntity<Page<ReminderResponseDto>> getMyReminder(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size,
-      @RequestParam(defaultValue = "id") String sortBy) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+          @ModelAttribute PaginationParams params) {
+    Pageable pageable = PageRequest.of(params.page(), params.size(), Sort.by(params.sortBy()));
     Page<ReminderResponseDto> reminderResponseDto = reminderService.getMyReminder(pageable);
     return ResponseEntity.ok(reminderResponseDto);
   }

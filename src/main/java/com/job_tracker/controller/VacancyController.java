@@ -1,11 +1,13 @@
 package com.job_tracker.controller;
 
+import com.job_tracker.dto.PaginationParams;
 import com.job_tracker.dto.VacancyCreateRequestDto;
 import com.job_tracker.dto.VacancyResponseDto;
 import com.job_tracker.dto.VacancyUpdateDto;
 import com.job_tracker.enums.VacancyStatus;
 import com.job_tracker.service.VacancyService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,21 +18,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/vacancy")
+@RequiredArgsConstructor
 public class VacancyController {
 
   private final VacancyService service;
 
-  public VacancyController(VacancyService service) {
-    this.service = service;
-  }
 
   @GetMapping("/vacancies")
   public ResponseEntity<Page<VacancyResponseDto>> getAllVacancy(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size,
-      @RequestParam(defaultValue = "id") String sortBy,
-      @RequestParam(name = "status", required = false) VacancyStatus status) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+          @ModelAttribute PaginationParams params,
+          @RequestParam(name = "status", required = false) VacancyStatus status) {
+    Pageable pageable = PageRequest.of(params.page(), params.size(), Sort.by(params.sortBy()));
     Page<VacancyResponseDto> vacanciesResponseDto = service.getAllVacancy(status, pageable);
     return ResponseEntity.ok(vacanciesResponseDto);
   }
