@@ -1,3 +1,10 @@
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -Dtest='!AdzunaTest,!JobTrackerApplicationTests' -DfailIfNoTests=false
+
 FROM eclipse-temurin:21-jdk-alpine
-COPY target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+WORKDIR /app
+COPY --from=build /app/target/job-tracker-0.0.1-SNAPSHOT.jar ./app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
